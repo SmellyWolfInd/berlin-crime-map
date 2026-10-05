@@ -491,17 +491,21 @@
         box-sizing: border-box !important;
         max-width: min(360px, calc(100vw - 20px)) !important;
         width: max-content;
-        max-height: min(70vh, 70dvh);
         overflow-x: hidden !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
-        padding: 8px 10px !important;
+        padding: 8px 12px 8px 10px !important;
       }
       .leaflet-control-layers-list,
       .leaflet-control-layers-base,
       .leaflet-control-layers-overlays {
         max-width: 100%;
         overflow-x: hidden;
+      }
+      .leaflet-control-layers-expanded .leaflet-control-layers-list,
+      .leaflet-control-layers-scrollbar {
+        max-height: min(70vh, 70dvh) !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
       }
       .leaflet-control-layers label {
         display: flex;
@@ -594,8 +598,11 @@
         }
         .leaflet-control-layers-expanded {
           max-width: calc(100vw - 16px) !important;
-          max-height: min(65vh, 65dvh) !important;
           font-size: 16px !important;
+        }
+        .leaflet-control-layers-expanded .leaflet-control-layers-list,
+        .leaflet-control-layers-scrollbar {
+          max-height: min(65vh, 65dvh) !important;
         }
         .leaflet-control-layers label {
           align-items: flex-start;
@@ -633,8 +640,11 @@
       @media (max-width: 430px) {
         .leaflet-control-layers-expanded {
           max-width: calc(100vw - 12px) !important;
+          padding: 6px 10px 6px 8px !important;
+        }
+        .leaflet-control-layers-expanded .leaflet-control-layers-list,
+        .leaflet-control-layers-scrollbar {
           max-height: min(60vh, 60dvh) !important;
-          padding: 6px 8px !important;
         }
       }
       @media (min-width: 769px) {
