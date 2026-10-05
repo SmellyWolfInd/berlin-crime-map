@@ -483,16 +483,68 @@
       .leaflet-control-layers-toggle {
         background-size: 28px 28px !important;
       }
+
+      .leaflet-control-layers {
+        box-sizing: border-box;
+      }
+      .leaflet-control-layers-expanded {
+        box-sizing: border-box !important;
+        max-width: min(360px, calc(100vw - 20px)) !important;
+        width: max-content;
+        max-height: min(70vh, 70dvh);
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px 10px !important;
+      }
+      .leaflet-control-layers-list,
+      .leaflet-control-layers-base,
+      .leaflet-control-layers-overlays {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
       .leaflet-control-layers label {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 8px;
         min-height: 44px;
         margin: 0;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.3;
+        padding: 4px 0;
+      }
+      .leaflet-control-layers label span {
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
       .leaflet-control-layers-selector {
+        flex: 0 0 auto;
         width: 22px;
         height: 22px;
+        margin-top: 2px;
+      }
+      .legend.leaflet-control {
+        box-sizing: border-box;
+        max-width: min(450px, calc(100vw - 16px));
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: rgba(255,255,255,0.92);
+        border-radius: 4px;
+        padding: 2px 4px;
+      }
+      .leaflet-control-attribution {
+        max-width: min(100vw - 8px, 420px);
+        overflow-wrap: anywhere;
+        font-size: 11px !important;
+        line-height: 1.25;
       }
       .leaflet-popup {
         max-width: min(92vw, 360px) !important;
@@ -536,6 +588,33 @@
         .leaflet-bar a {
           font-size: 16px !important;
         }
+        .leaflet-top.leaflet-right,
+        .leaflet-bottom.leaflet-right {
+          max-width: calc(100vw - 8px);
+        }
+        .leaflet-control-layers-expanded {
+          max-width: calc(100vw - 16px) !important;
+          max-height: min(65vh, 65dvh) !important;
+          font-size: 16px !important;
+        }
+        .leaflet-control-layers label {
+          align-items: flex-start;
+        }
+        .legend.leaflet-control {
+          max-width: calc(100vw - 12px) !important;
+          margin: 4px 6px 0 0 !important;
+        }
+        .leaflet-control-attribution {
+          max-width: calc(100vw - 56px);
+          padding: 2px 6px !important;
+        }
+        .leaflet-popup {
+          max-width: calc(100vw - 24px) !important;
+        }
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-content {
+          max-width: calc(100vw - 36px) !important;
+        }
         #berlin-legend-slot {
           position: static !important;
           left: auto !important;
@@ -549,6 +628,13 @@
           border-bottom: 1px solid #d5d5d5;
           box-shadow: none;
           z-index: 1000;
+        }
+      }
+      @media (max-width: 430px) {
+        .leaflet-control-layers-expanded {
+          max-width: calc(100vw - 12px) !important;
+          max-height: min(60vh, 60dvh) !important;
+          padding: 6px 8px !important;
         }
       }
       @media (min-width: 769px) {
@@ -14395,6 +14481,24 @@
       } catch (e) {}
     }
   }
+  function clampLegend() {
+    var box = document.querySelector(".legend.leaflet-control");
+    var svg = box && box.querySelector("svg");
+    if (!svg) return;
+    var narrow = window.matchMedia("(max-width: 768px)").matches;
+    var nativeW = parseFloat(svg.getAttribute("data-native-width") || svg.getAttribute("width") || 450);
+    if (!svg.getAttribute("data-native-width")) svg.setAttribute("data-native-width", String(nativeW));
+    var avail = Math.max(180, window.innerWidth - 16);
+    if (narrow && nativeW > avail) {
+      var scale = avail / nativeW;
+      box.style.transformOrigin = "top right";
+      box.style.transform = "scale(" + scale.toFixed(4) + ")";
+      box.style.maxWidth = avail + "px";
+    } else {
+      box.style.transform = "";
+      box.style.maxWidth = "";
+    }
+  }
   function tune() {
     var narrow = window.matchMedia("(max-width: 768px)").matches;
     var nodes = document.querySelectorAll(".leaflet-control-layers");
@@ -14404,10 +14508,15 @@
         nodes[i].classList.remove("leaflet-control-layers-expanded");
       }
     }
+    clampLegend();
     eachMap(function (map) { map.invalidateSize(); });
   }
   tune();
   window.addEventListener("resize", tune);
+  window.addEventListener("orientationchange", tune);
+  // Branca legend mounts after first paint
+  setTimeout(clampLegend, 0);
+  setTimeout(clampLegend, 250);
 })();
 </script>
 
