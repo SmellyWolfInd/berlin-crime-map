@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; media-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://maps.dwd.de https://api.viz.berlin.de https://verkehr.autobahn.de https://www.berlin.de/polizei/service/versammlungsbehoerde/; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; media-src 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="icon" href="data:,">
+  <link rel="manifest" href="BERLIN%20manifest.webmanifest">
+  <meta name="theme-color" content="#081d58">
   <meta charset="utf-8">
     <title>Berlin Crime Map — police reports + Crime Atlas</title>
     <meta name="description" content="Berlin police reports (last 12 months) and Crime Atlas neighbourhood counts.">
@@ -17,7 +19,7 @@
   <link rel="stylesheet" href="BERLIN%20vendor-awesome-rotate.css?v=35aaa393c0">
   <link rel="stylesheet" href="BERLIN%20vendor-fullscreen.css?v=8c5a942008">
   <link rel="stylesheet" href="BERLIN%20vendor-minimap.css?v=17f3ff10a5">
-  <link rel="stylesheet" href="BERLIN%20app.css?v=00cc315d28">
+  <link rel="stylesheet" href="BERLIN%20app.css?v=ae8307efc9">
   <script src="BERLIN%20vendor-leaflet.js?v=db49d009c8"></script>
   <script src="BERLIN%20vendor-awesome-markers.js?v=8b0382d98e"></script>
   <script src="BERLIN%20vendor-fullscreen.js?v=0269d641bd"></script>
@@ -35,7 +37,7 @@
           Scope: circle centered on <b>Victory Column</b> out to <b>BER</b>
           (~19.5 km; 137 neighborhoods / BZR).<br>
           Basemap: <b>Esri World Light Gray Base</b> (no API key).<br>
-          Pins = <b>anecdotal OSINT</b> (auto Polizeimeldungen + hand merge; X not used), filtered by age checkboxes (last 12 months on by default; older pins toggle in the layer menu) and the <b>Crime types</b> filter. <b>Timeline</b> view animates pins by date. Extra layers: central corridor (Tiergarten / Mitte, default off), bicycle theft, Fire Department, kbO. Landmarks = Victory Column / BER / Pariser Platz.
+          Pins = <b>anecdotal OSINT</b> (auto Polizeimeldungen + hand merge; X not used), filtered by age checkboxes (last 12 months on by default; older pins toggle in the layer menu) and the <b>Crime types</b> filter. <b>Timeline</b> view animates pins by date. Extra layers: central corridor (Tiergarten / Mitte, default off), bicycle theft, Fire Department, kbO. Landmarks = Victory Column / BER / Brandenburger Tor.
         </div>
       </details>
     </div>
@@ -44,7 +46,7 @@
         <summary>Legend</summary>
         <div class="panel-body">
           ■ Neighborhood fill = official Crime Atlas figures; default: all offenses per 100k residents (case-count layers per offense type in the layer menu); one colour scale (light = low, dark blue = high)<br>
-          <i class="fas fa-monument"></i> <i class="fas fa-plane"></i> <i class="fas fa-flag"></i> Landmarks = Victory Column / BER / Pariser Platz<br>
+          <i class="fas fa-monument"></i> <i class="fas fa-plane"></i> <i class="fas fa-flag"></i> Landmarks = Victory Column / BER / Brandenburger Tor<br>
           <b>Pin color (recency vs 2026-11-21; last 12 months shown by default, older pins via layer menu):</b><br>
           &nbsp;&nbsp;<span style="color:#d9534f">■</span> red = last 7 days<br>
           &nbsp;&nbsp;<span style="color:#f0ad4e">■</span> orange = days 8–30<br>
@@ -61,7 +63,7 @@
           &nbsp;&nbsp;<i class="fas fa-fire"></i> fire = arson / fire<br>
           &nbsp;&nbsp;<i class="fas fa-explosion"></i> explosion = pyrotechnics / explosives<br>
           &nbsp;&nbsp;<i class="fas fa-bomb"></i> bomb = terrorism<br>
-          &nbsp;&nbsp;<i class="fas fa-bolt-lightning"></i> bolt-lightning = attack on power grid<br>
+          &nbsp;&nbsp;<i class="fas fa-bolt-lightning"></i> bolt-lightning = infrastructure incident<br>
           &nbsp;&nbsp;<i class="fas fa-warning"></i> warning = threat<br>
           &nbsp;&nbsp;<i class="fas fa-heartbeat"></i> heartbeat = ambulance / medical<br>
           &nbsp;&nbsp;<i class="fas fa-exclamation"></i> exclamation = other<br>
@@ -110,7 +112,7 @@
     <div id="btf-list"></div>
     <div class="btf-note">Filters OSINT incident pins in all views (main map, corridor layer, Timeline, Analytics),
       together with search, Corridor only and New. "On map" also depends on the pin-age checkboxes in the layer menu.
-      Fire Department, bicycle-theft, kbO and neighborhood fills are not filtered. No heat or cluster layers are used; pins that sit on top of each other show a count badge, and tapping the pin spreads them.</div>
+      Fire Department, bicycle-theft, kbO and neighborhood fills are not filtered. Pins are never clustered; the optional hotspot and historic-unrest layers are hex-bin counts (off by default). Pins that sit on top of each other show a count badge, and tapping the pin spreads them.</div>
   </div>
 </div>
 <div id="berlin-tl-view" aria-label="Timeline view">
@@ -156,6 +158,6 @@
 </div>
 
 <div class="folium-map" id="map_48f0769d618c5b3669fcdd5c4e0dca28" ></div>
-<script src="BERLIN%20boot.js?v=3f274d0dda"></script>
+<script src="BERLIN%20boot.js?v=86fc92bf52"></script>
 </body>
 </html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://server.arcgisonline.com; font-src 'self'; connect-src 'self' https://maps.dwd.de https://api.viz.berlin.de https://verkehr.autobahn.de https://www.berlin.de/polizei/service/versammlungsbehoerde/; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; worker-src 'self'; manifest-src 'self'; media-src 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="icon" href="data:,">
+  <link rel="manifest" href="BERLIN%20manifest.webmanifest">
+  <meta name="theme-color" content="#081d58">
+  <meta charset="utf-8">
+    <title>Berlin Crime Map — police reports + Crime Atlas</title>
+    <meta name="description" content="Berlin police reports (last 12 months) and Crime Atlas neighbourhood counts.">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="BERLIN%20vendor-leaflet.css?v=89f66625bf">
+  <link rel="stylesheet" href="BERLIN%20vendor-bootstrap.css?v=2143941c03">
+  <link rel="stylesheet" href="BERLIN%20vendor-fontawesome.css?v=137b1cf3ce">
+  <link rel="stylesheet" href="BERLIN%20vendor-fa-solid.css?v=21db79f9a5">
+  <link rel="stylesheet" href="BERLIN%20vendor-awesome-markers.css?v=c97fa2134d">
+  <link rel="stylesheet" href="BERLIN%20vendor-awesome-rotate.css?v=35aaa393c0">
+  <link rel="stylesheet" href="BERLIN%20vendor-fullscreen.css?v=8c5a942008">
+  <link rel="stylesheet" href="BERLIN%20vendor-minimap.css?v=17f3ff10a5">
+  <link rel="stylesheet" href="BERLIN%20app.css?v=ae8307efc9">
+  <script src="BERLIN%20vendor-leaflet.js?v=db49d009c8"></script>
+  <script src="BERLIN%20vendor-awesome-markers.js?v=8b0382d98e"></script>
+  <script src="BERLIN%20vendor-fullscreen.js?v=0269d641bd"></script>
+  <script src="BERLIN%20vendor-minimap.js?v=d28d76fb31"></script>
+</head>
+<body>
+<div id="berlin-boot" role="status">Loading map data…</div>
+<noscript><p class="berlin-noscript">This map needs JavaScript.</p></noscript>
+<div id="berlin-chrome">
+      <details class="berlin-title">
+        <summary>Berlin Crime Map — police reports (last 12 months) + Crime Atlas neighbourhood counts</summary>
+        <div class="panel-body">
+          Official layers: neighborhood fill per offense category (BZR aggregates).
+          <b>No address-level all-crime points published.</b><br>
+          Scope: circle centered on <b>Victory Column</b> out to <b>BER</b>
+          (~19.5 km; 137 neighborhoods / BZR).<br>
+          Basemap: <b>Esri World Light Gray Base</b> (no API key).<br>
+          Pins = <b>anecdotal OSINT</b> (auto Polizeimeldungen + hand merge; X not used), filtered by age checkboxes (last 12 months on by default; older pins toggle in the layer menu) and the <b>Crime types</b> filter. <b>Timeline</b> view animates pins by date. Extra layers: central corridor (Tiergarten / Mitte, default off), bicycle theft, Fire Department, kbO. Landmarks = Victory Column / BER / Brandenburger Tor.
+        </div>
+      </details>
+    </div>
+    <div id="berlin-legend-slot">
+      <details class="berlin-legend" open>
+        <summary>Legend</summary>
+        <div class="panel-body">
+          ■ Neighborhood fill = official Crime Atlas figures; default: all offenses per 100k residents (case-count layers per offense type in the layer menu); one colour scale (light = low, dark blue = high)<br>
+          <i class="fas fa-monument"></i> <i class="fas fa-plane"></i> <i class="fas fa-flag"></i> Landmarks = Victory Column / BER / Brandenburger Tor<br>
+          <b>Pin color (recency vs 2026-11-21; last 12 months shown by default, older pins via layer menu):</b><br>
+          &nbsp;&nbsp;<span style="color:#d9534f">■</span> red = last 7 days<br>
+          &nbsp;&nbsp;<span style="color:#f0ad4e">■</span> orange = days 8–30<br>
+          &nbsp;&nbsp;<span style="color:#c9a227">■</span> yellow/gold = days 31–90<br>
+          &nbsp;&nbsp;<span style="color:#5cb85c">■</span> green = days 91–180<br>
+          &nbsp;&nbsp;<span style="color:#337ab7">■</span> blue = days 181–365<br>
+          &nbsp;&nbsp;<span style="color:#6f42c1">■</span> purple = older than 365 days<br>
+          <b>Pin icons (Font Awesome Classic):</b><br>
+          &nbsp;&nbsp;<i class="fas fa-skull"></i> skull = homicide / attempted homicide<br>
+          &nbsp;&nbsp;<i class="fas fa-gun"></i> gun = shooting / firearm<br>
+          &nbsp;&nbsp;<i class="fas fa-mask"></i> mask = armed robbery<br>
+          &nbsp;&nbsp;<i class="fas fa-knife"></i> knife = stabbing<br>
+          &nbsp;&nbsp;<i class="fas fa-people-robbery"></i> people-robbery = robbery / burglary<br>
+          &nbsp;&nbsp;<i class="fas fa-fire"></i> fire = arson / fire<br>
+          &nbsp;&nbsp;<i class="fas fa-explosion"></i> explosion = pyrotechnics / explosives<br>
+          &nbsp;&nbsp;<i class="fas fa-bomb"></i> bomb = terrorism<br>
+          &nbsp;&nbsp;<i class="fas fa-bolt-lightning"></i> bolt-lightning = infrastructure incident<br>
+          &nbsp;&nbsp;<i class="fas fa-warning"></i> warning = threat<br>
+          &nbsp;&nbsp;<i class="fas fa-heartbeat"></i> heartbeat = ambulance / medical<br>
+          &nbsp;&nbsp;<i class="fas fa-exclamation"></i> exclamation = other<br>
+          &nbsp;&nbsp;<i class="fas fa-fire"></i> / <i class="fas fa-heartbeat"></i> orange pins = Fire Department posts (fire / rescue; layer menu, default off)<br>
+          Grey halo = approximate location (street centre / area); <i>rough</i> pins (borough centre, street not given) are never counted in the corridor<br>
+          <b>Crime types</b> (toolbar): show/hide pins by icon type; also applies to <b>Timeline</b><br>
+          <b>Timeline</b> (toolbar): play pins over time (cumulative or rolling 7/30/90 days)<br>
+          <b>Theme</b> (toolbar): System / Light / Dark (dark basemap in Dark)<br>
+          <b>Analytics</b> (toolbar): hour &times; weekday grid, pins per borough per month<br>
+          <b>Search</b>, <b>Corridor only</b>, <b>New</b> (red glow = new since last build) filter all views; <b>Copy link</b> saves the exact view<br>
+          <b>Central corridor (Tiergarten / Mitte)</b> (layer or <b>Corridor only</b> button): ~2.5 km area plus landmark areas (Tiergarten, Bundestag/Reichstag, Pariser Platz / Brandenburger Tor, Leipziger Platz, Potsdamer Platz; dashed purple); area names only; default off
+        </div>
+      </details>
+    </div>
+    
+    
+<div id="berlin-toolbar" role="toolbar" aria-label="Map views and filters">
+  <div class="tb-rows">
+  <div class="tb-row tb-row1">
+    <button type="button" id="btn-view-map" class="active" aria-pressed="true">Map</button>
+    <button type="button" id="btn-view-tl" aria-pressed="false">&#9654; Timeline</button>
+    <button type="button" id="btn-view-an" aria-pressed="false">Analytics</button>
+    <span class="tb-sep"></span>
+    <button type="button" id="btn-types" aria-expanded="false" aria-controls="berlin-type-panel">Types <span id="btn-types-n"></span> &#9662;</button>
+    <button type="button" id="btn-corr" class="tb-toggle" aria-pressed="false" title="Show only corridor + landmark-area pins">Corridor only</button>
+    <button type="button" id="btn-new" class="tb-toggle" aria-pressed="false" title="Show only pins new since the last build">New <span id="new-n">0</span></button>
+    <button type="button" id="btn-legend" aria-expanded="false">Legend</button>
+    <button type="button" id="btn-link" title="Copy a link to this exact view">&#128279; <span class="tb-long">Copy </span>link</button>
+  </div>
+  <div class="tb-row tb-row2">
+    <input type="search" id="berlin-search" placeholder="Search title, type, borough" aria-label="Search pins">
+    <label class="tb-theme"><span class="tb-theme-word">Theme</span> <select id="theme-select" aria-label="Colour theme">
+      <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
+    </select></label>
+    <span class="tb-status" id="tb-status"></span>
+  </div>
+  </div>
+  <div id="link-box" hidden><span id="link-msg">Link:</span><input id="link-text" readonly aria-label="Link to this view"></div>
+  <div id="berlin-type-panel" hidden>
+    <div class="btf-actions">
+      <button type="button" id="btf-all">All</button>
+      <button type="button" id="btf-none">None</button>
+      <button type="button" id="btf-close">Close</button>
+    </div>
+    <div class="btf-head"><span>Type (pin icon)</span><span>on map / total</span></div>
+    <div id="btf-list"></div>
+    <div class="btf-note">Filters OSINT incident pins in all views (main map, corridor layer, Timeline, Analytics),
+      together with search, Corridor only and New. "On map" also depends on the pin-age checkboxes in the layer menu.
+      Fire Department, bicycle-theft, kbO and neighborhood fills are not filtered. Pins are never clustered; the optional hotspot and historic-unrest layers are hex-bin counts (off by default). Pins that sit on top of each other show a count badge, and tapping the pin spreads them.</div>
+  </div>
+</div>
+<div id="berlin-tl-view" aria-label="Timeline view">
+  <div id="berlin-tl-map"></div>
+  <div id="berlin-tl-controls">
+    <div class="tl-row">
+      <button type="button" id="tl-play" aria-label="Play timeline">&#9654; Play</button>
+      <label>Speed <select id="tl-speed">
+        <option value="1">1 day/step</option>
+        <option value="3" selected>3 days/step</option>
+        <option value="7">1 week/step</option>
+        <option value="14">2 weeks/step</option>
+      </select></label>
+      <label>Window <select id="tl-mode">
+        <option value="0" selected>Cumulative</option>
+        <option value="7">Rolling 7 days</option>
+        <option value="30">Rolling 30 days</option>
+        <option value="90">Rolling 90 days</option>
+      </select></label>
+      <span id="tl-label"></span>
+    </div>
+    <input type="range" id="tl-slider" aria-label="Timeline date" step="1">
+    <svg id="tl-hist" preserveAspectRatio="none" role="img" aria-label="Incidents per week"></svg>
+    <div class="tl-axis"><span id="tl-axis-min"></span><span id="tl-axis-mid"></span><span id="tl-axis-max"></span></div>
+    <details class="btf-note"><summary>About dates &amp; coverage</summary><div id="tl-note"></div></details>
+  </div>
+</div>
+<div id="berlin-an-view" aria-label="Analytics view">
+  <div class="an-wrap">
+    <div class="an-note" id="an-summary"></div>
+    <h3>When: hour of day &times; weekday</h3>
+    <div id="an-heat-box"><svg id="an-heat" role="img" aria-label="Incidents by hour and weekday"></svg></div>
+    <div class="an-note" id="an-heat-note"></div>
+    <h3>Where: pins per borough per month</h3>
+    <div id="an-boro-box"><div class="boro-frame"><svg id="an-boro-lab" aria-hidden="true"></svg><div id="an-boro-scroll"><svg id="an-boro" role="img" aria-label="Pins per borough per month"></svg></div><svg id="an-boro-tot" aria-hidden="true"></svg></div><div id="an-tip" role="tooltip" hidden></div></div>
+    <div class="an-note">OSINT pin counts, not crime rates: they reflect which police releases were collected
+      (coverage per month: see the listed-vs-pinned chart below) and are not adjusted for population. Use the neighborhood fills
+      (official Crime Atlas) for rates.</div>
+    <h3>Coverage: police releases listed vs pinned, per month</h3>
+    <div id="an-cov-box"><svg id="an-cov" role="img" aria-label="Police releases listed versus pinned per month"></svg></div>
+    <div class="an-note" id="an-cov-note"></div>
+  </div>
+</div>
+
+<div class="folium-map" id="map_48f0769d618c5b3669fcdd5c4e0dca28" ></div>
+<script src="BERLIN%20boot.js?v=86fc92bf52"></script>
+</body>
+</html>

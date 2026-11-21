@@ -29,6 +29,14 @@
   if (window.BERLIN_P2.KIOSK) document.body.classList.add("berlin-kiosk");
 })();
 ;
+/* Phase 3 (21g): remember layer controls as they are created, so the Phase 3 layers can join the map's layer list. */
+(function () {
+  "use strict";
+  var P = window.BERLIN_P2;
+  P.layerControls = [];
+  if (window.L && L.Control && L.Control.Layers) L.Control.Layers.addInitHook(function () { P.layerControls.push(this); });
+})();
+;
 /* Audit 21.11 Phase 1: layer menu opens/closes on click or tap only (no hover / focus expand),
    stays open until the toggle is tapped again or the map is tapped. */
 (function () {
@@ -1935,7 +1943,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Berlin Fire Department incidents (posts to 15 Nov 2026, fetched 20 Nov 2026)" : feature_group_28d6858027d6bb9456e5e9eb66c7aea6,
                     "Crime-burdened areas (kbO)" : feature_group_b7a6bd56c8b05ff82474dffcdde73183,
                     "Study radius (Victory Column \u2192 BER)" : feature_group_79aa05b2811b5da03b9db231bdd579ba,
-                    "Landmarks (Victory Column / BER / Pariser Platz)" : feature_group_601ae1090ee0409ec7709610dea60ea5,
+                    "Landmarks (Victory Column / BER / Brandenburger Tor)" : feature_group_601ae1090ee0409ec7709610dea60ea5,
                 },
             };
             let layer_control_042dba56d0840e3a78cabbf06faafb43 = L.control.layers(
@@ -2703,6 +2711,7 @@ document.addEventListener("DOMContentLoaded", function () {
     state: function () { return {view: S.view, date: dstr(S.date), win: S.win, speed: S.speed, newOnly: S.newOnly,
       corr: S.corr, q: S.q, theme: S.theme, types: PRESENT.filter(function (c) { return ACTIVE[c.id]; }).map(function (c) { return c.id; })}; },
     matching: matching,
+    passIds: function () { var o = []; PINS.forEach(function (p, i) { if (pass(p)) o.push(i); }); return o; },  // 21g exports/briefing
     corridorPins: function () { return PINS.filter(function (p) { return p.k; }).length; },
     setType: function (id, on) { ACTIVE[id] = !!on; onFilterChange(); },
     setAll: setAll,
@@ -3088,4 +3097,576 @@ document.addEventListener("DOMContentLoaded", function () {
     stacks: Stacks, guardLinks: guardLinks, topBand: topBand, kiosk: P.KIOSK, touch: P.TOUCH,
     legend: function () { return legendBox ? Array.prototype.map.call(legendBox.querySelectorAll(".cb-cap"), function (c) { return c.textContent; }) : []; }
   };
+})();
+;
+/* Phase 3 (21g): build-time analytics, extra map layers (all off by default), briefing print, GeoJSON/KML export,
+   offline (PWA) registration. All data comes from BERLIN data.json (J.p3), computed at build time.
+   No network requests besides this page's own files; no alerts, notifications or drawn routes. */
+(function () {
+  "use strict";
+  var P = window.BERLIN_P2, J = P.J, X = J.p3, esc = P.esc;
+  if (!X || !window.L) return;
+  var PINS = J.f.pins, CATS = J.f.cats, own = Object.prototype.hasOwnProperty;
+  var CAT = {}; CATS.forEach(function (c) { CAT[c.id] = c; });
+  var RAMP = ["#ffffd9", "#c7e9b4", "#41b6c4", "#225ea8", "#081d58"];  // single YlGnBu palette (as the fills)
+  function ramp(t) { t = Math.max(0, Math.min(1, t)); return RAMP[Math.min(4, Math.floor(t * 4.999))]; }
+  function ink(t) { return t > 0.55 ? "#fff" : "#1a202c"; }
+  function $(id) { return document.getElementById(id); }
+  function globals(test) {
+    var out = [], k, v;
+    for (k in window) {
+      if (!own.call(window, k)) continue;
+      try { v = window[k]; if (v && test(v)) out.push(v); } catch (e) { /* ignore */ }
+    }
+    return out;
+  }
+  var MAIN = globals(function (v) { return v instanceof L.Map && v._container && v._container.id !== "berlin-tl-map"; })[0];
+  var LC = (P.layerControls || []).filter(function (c) { return c._map === MAIN; })[0];
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  function dfmt(s) { if (!s) return ""; var p = s.split("-"); return (+p[2]) + " " + MON[+p[1] - 1] + " " + p[0]; }
+  function mfmt(s) { var p = s.split("-"); return MON[+p[1] - 1] + " \u2019" + p[0].slice(2); }
+  function link(u, t) {
+    return (typeof u === "string" && u.indexOf("https://www.berlin.de/") === 0 && u.indexOf('"') < 0)
+      ? '<a href="' + esc(u) + '" target="_blank" rel="noopener noreferrer">' + esc(t) + "</a>" : esc(t);
+  }
+  function sw(col, shape) { return '<span class="p3-sw p3-sw-' + (shape || "dot") + '" style="background:' + col + '"></span>'; }
+
+  // ------------------------------------------------------------------ map layers (all off by default)
+  var LAYERS = {}, ORDER = [];
+  // own pane above the neighbourhood fills (overlayPane 400) and below pins (markerPane 600)
+  if (MAIN && !MAIN.getPane("p3pane")) { MAIN.createPane("p3pane"); MAIN.getPane("p3pane").style.zIndex = 450; }
+  function addLayer(key, name, layer) { LAYERS[key] = layer; ORDER.push([key, name]); if (LC) LC.addOverlay(layer, name); }
+  function hexLayer(H, title) {
+    var g = L.featureGroup();
+    H.cells.forEach(function (c) {
+      var t = H.max ? c.n / H.max : 0;
+      L.polygon(c.p, {pane: "p3pane", color: "#081d58", weight: 1.2, opacity: 0.9, fillColor: ramp(0.35 + 0.65 * t), fillOpacity: 0.65, className: "p3-hex"})
+        .bindPopup("<b>" + esc(title) + "</b><br>" + c.n + " pin" + (c.n === 1 ? "" : "s") + " in this cell (about " +
+          Math.round(H.hex_m * 2 / 100) / 10 + " km across).<br><small>Counts of collected police releases, not rates.</small>")
+        .addTo(g);
+    });
+    return g;
+  }
+  var hot = X.hot, un = X.unrest;
+  addLayer("hot", sw("#225ea8", "hex") + "Hotspots: serious violence, last " + hot.days + " days (" + hot.n + " pins, hex-bin)", hexLayer(hot, "Serious violence, last " + hot.days + " days"));
+  addLayer("unrest", sw("#41b6c4", "hex") + "Historic unrest: riots, barricades, crowd pyrotechnics (" + un.n + " pins, hex-bin)", hexLayer(un, "Historic unrest (all dates)"));
+  var infra = L.featureGroup();
+  X.infra.items.forEach(function (it) {
+    var p = PINS[it.i];
+    L.circleMarker([p.la, p.lo], {pane: "p3pane", radius: 16, color: "#5d4037", weight: 3, fill: true, fillOpacity: 0.08, dashArray: "4 3"})
+      .bindPopup("<b>Infrastructure incident</b><br>" + esc(dfmt(it.d)) + ": " + esc(it.t) + "<br>" +
+        (it.g.length ? "<b>Tags:</b> " + it.g.map(function (g) { return esc((X.infra.tag_labels[g] || g)); }).join("; ") + "<br>" : "") +
+        "<b>Borough:</b> " + esc(it.b) + "<br><b>Source:</b> " + link(it.u, "Police release") +
+        "<br><small>Incident location only (district level where stated); no infrastructure sites are mapped.</small>")
+      .addTo(infra);
+  });
+  addLayer("infra", sw("#5d4037", "ring") + "Infrastructure incidents (" + X.infra.items.length + ", incl. older than 12 months)", infra);
+  var E = X.emerg, cv = L.canvas({padding: 0.3, pane: "p3pane"});
+  function pts(rows, style, pop) {
+    var g = L.featureGroup();
+    rows.forEach(function (r) {
+      var o = {renderer: cv}; for (var k in style) o[k] = style[k];
+      L.circleMarker([r[0], r[1]], o).bindPopup(pop(r)).addTo(g);
+    });
+    return g;
+  }
+  addLayer("er", sw("#c53030") + "Emergency hospitals, 24 h ER (" + E.er.length + ")",
+    pts(E.er, {radius: 7, color: "#fff", weight: 2, fillColor: "#c53030", fillOpacity: 1},
+      function (r) { return "<b>" + esc(r[2]) + "</b><br>" + esc(r[3]) + " (emergency admission, 24 h)<br>" + esc(r[4]) + "<br><small>" + esc(E.src.er) + "</small>"; }));
+  addLayer("hosp", sw("#ed8936") + "Other hospitals (" + E.hosp.length + ")",
+    pts(E.hosp, {radius: 5, color: "#fff", weight: 1.5, fillColor: "#ed8936", fillOpacity: 1},
+      function (r) { return "<b>" + esc(r[2]) + "</b><br>Hospital (not on the emergency-admission list)" + (r[3] ? "<br>" + esc(r[3]) : "") + "<br><small>" + esc(E.src.hosp) + "</small>"; }));
+  addLayer("police", sw("#2b6cb0") + "Police stations (" + E.police.length + ")",
+    pts(E.police, {radius: 6, color: "#fff", weight: 2, fillColor: "#2b6cb0", fillOpacity: 1},
+      function (r) { return "<b>Police station: " + esc(r[2]) + "</b><br>" + esc(r[5]) + (r[3] ? ", " + esc(r[3]) : "") + (r[4] ? "<br>Open: " + esc(r[4]) : "") + "<br><small>" + esc(E.src.police) + "</small>"; }));
+  addLayer("meet", sw("#2f855a") + "Emergency meeting points, Kat-Leuchtt\u00fcrme (" + E.meet.length + ")",
+    pts(E.meet, {radius: 6, color: "#fff", weight: 2, fillColor: "#2f855a", fillOpacity: 1},
+      function (r) { return "<b>Emergency meeting point (Katastrophenschutz-Leuchtturm)</b><br>" + esc(r[2]) + "<br>" + esc(r[4]) + ", " + esc(r[3]) +
+        "<br><small>Staffed in a major emergency (e.g. long power cut). " + esc(E.src.meet) + "</small>"; }));
+  addLayer("stations", sw("#4a5568") + "U-Bahn / S-Bahn stations (" + E.stations.length + ")",
+    pts(E.stations, {radius: 3.5, color: "#1a202c", weight: 1, fillColor: "#e2e8f0", fillOpacity: 1},
+      function (r) { return "<b>" + esc(r[2]) + "</b><br>" + (r[3] === "U" ? "U-Bahn station" : r[3] === "S" ? "S-Bahn station" : "Main railway station") + "<br><small>" + esc(E.src.stations) + "</small>"; }));
+  // ---- OSINT unconfirmed (21g2): separate file BERLIN osint_unconfirmed.json, one array, read over http(s) only ----
+  var HN = null;
+  try { HN = X.hn && X.hn.street && X.hn.bare ? {street: new RegExp(X.hn.street, "gu"), bare: new RegExp(X.hn.bare, "giu")} : null; } catch (e) { HN = null; }
+  // 21h fail-closed fallback: without the build patterns, drop every 1-4 digit number (+ letter / range) that follows a word,
+  // unless it is a time, date, decimal or unit. Over-strips on purpose; never returns a house number unchanged.
+  var CRUDE = /([\p{L}.)-])\s+\d{1,4}(?!\d)(?:\s?[a-zA-Z](?![\p{L}]))?(?:\s?[-\u2013/]\s?\d{1,4}[a-zA-Z]?)?(?![\d.:,]\d|\.\s?\p{L}|\s?(?:Uhr|km|m\b|%|h\b|Jahre|years?\b|Euro|\u20ac))/gu;
+  function crudeHN(t) { return String(t).replace(CRUDE, "$1"); }
+  function stripHN(t) {  // same patterns as textfix.strip_house_numbers (generated at build time); fails closed (crudeHN)
+    t = String(t == null ? "" : t);
+    if (!/\d/.test(t)) return t;
+    if (!HN) return crudeHN(t);
+    try {
+      return t.split("\n").map(function (line) {
+        HN.street.lastIndex = 0; HN.bare.lastIndex = 0;
+        var o = line.replace(HN.street, function (m, g) { return g; }).replace(HN.bare, function (m) { return m.charAt(0) === " " ? " " : ""; });
+        if (o === line) return line;
+        return o.replace(/\(\s*\)/g, "").replace(/(\S)[ \t]{2,}(?=\S)/g, "$1 ").replace(/(\S) +([.,;:!?)])/g, "$1$2");
+      }).join("\n");
+    } catch (e) { return crudeHN(t); }
+  }
+  var URLISH = /\b(?:https?:\/\/|www\.)\S+|\b[\w-]+\.(?:de|com|org|net|info|eu|tv|io)\b(?:\/\S*)?/gi;
+  var OUTLET = new RegExp("(?<![\\p{L}\\p{N}_-])(?:" + (X.osint.outlets || "\\u0000") + ")(?![\\p{L}\\p{N}_-])", "giu");
+  var DANGLING = /\b(?:per|via|according to|reported by|sources?:?)\s*(?:(?:and|,|&)\s*)*(?=[).,;]|$)/gi;
+  function clean(t) {  // same steps as phase3.osint_text(): tags, URLs, @handles, outlet names, dangling 'per/via', house numbers
+    t = String(t == null ? "" : t).replace(/<[^>]*>/g, "").replace(URLISH, "").replace(/(^|\s)@\w+/g, "$1").replace(OUTLET, "");
+    for (var i = 0; i < 2; i++) {
+      t = t.replace(/\(\s*[,;&]?\s*\)/g, "").replace(DANGLING, "").replace(/\b(?:via|per)\s+(?=(?:on|in|at|and|from)\b)/gi, "")
+        .replace(/(?:[\s,;&]|\band\b)+$/i, "");
+    }
+    return stripHN(t).replace(/\s+/g, " ").replace(/\s+([.,;:!?)])/g, "$1").trim();
+  }
+  function berlinToday() {
+    try { return new Intl.DateTimeFormat("en-CA", {timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit"}).format(new Date()); }
+    catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+  var OC = X.osint.labels || {}, OS = X.osint.src_labels || {}, YMD = /^\d{4}-\d{2}-\d{2}$/;
+  function validOsint(it, today) {
+    return it && typeof it === "object" && (typeof it.id === "string" || typeof it.id === "number") && YMD.test(it.date) &&
+      (it.time_berlin === null || it.time_berlin === undefined || /^\d{2}:\d{2}$/.test(it.time_berlin)) &&
+      typeof it.la === "number" && typeof it.lo === "number" && it.la > 52.3 && it.la < 52.7 && it.lo > 13.05 && it.lo < 13.8 &&
+      own.call(OC, it.confidence) && own.call(OS, it.source_type) && YMD.test(it.expires) && it.expires >= today;
+  }
+  var os = L.featureGroup(), OSN = {loaded: false, raw: 0, shown: 0, expired: 0, invalid: 0, error: ""};
+  function osName() { return sw("#6b46c1", "ring") + "OSINT unconfirmed (" + OSN.shown + ")"; }
+  function osintPopup(it) {
+    return "<div class='berlin-popup p3-osint'><b style='color:#6b46c1'>UNCONFIRMED (OSINT)</b>" +
+      "<div class='b3-badges'><span class='b3-badge p3-osint-conf p3-osint-" + esc(it.confidence) + "'>" + esc(OC[it.confidence]) + "</span>" +
+      "<span class='b3-badge'>" + esc(OS[it.source_type]) + "</span></div>" +
+      "<b>" + esc(clean(it.title_en)) + "</b><br><b>Date:</b> " + esc(dfmt(it.date)) + (it.time_berlin ? ", ~" + esc(it.time_berlin) + " (Berlin time)" : "") +
+      "<br><b>Place:</b> " + esc(clean(it.place)) + (it.district ? ", " + esc(clean(it.district)) : "") +
+      (it.summary_en ? "<p style='margin:6px 0'>" + esc(clean(it.summary_en)) + "</p>" : "<br>") +
+      "<small>Not confirmed by police. Shown for awareness only; removed after " + esc(dfmt(it.expires)) + ".</small></div>";
+  }
+  function loadOsint(arr) {
+    var today = berlinToday();
+    os.clearLayers();
+    OSN.raw = Array.isArray(arr) ? arr.length : 0; OSN.shown = OSN.expired = OSN.invalid = 0;
+    (Array.isArray(arr) ? arr : []).forEach(function (it) {
+      if (it && YMD.test(it.expires) && it.expires < today) { OSN.expired++; return; }
+      if (!validOsint(it, today)) { OSN.invalid++; return; }
+      OSN.shown++;
+      L.circleMarker([it.la, it.lo], {pane: "p3pane", radius: 9, color: "#6b46c1", weight: 2, dashArray: "3 3", fillColor: "#fff", fillOpacity: 0.6})
+        .bindPopup(osintPopup(it), {maxWidth: 340}).addTo(os);
+    });
+    OSN.loaded = true;
+    if (LC && LAYERS.osint) { LC.removeLayer(os); LC.addOverlay(os, osName()); }
+    ORDER.forEach(function (o) { if (o[0] === "osint") o[1] = osName(); });
+    var n = $("p3-osint-n"); if (n) n.textContent = String(OSN.shown);
+  }
+  addLayer("osint", osName(), os);
+  if (/^https?:$/.test(location.protocol) && window.fetch) {
+    fetch(X.osint.file, {cache: "no-cache", credentials: "same-origin"})
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(loadOsint, function (e) { OSN.error = (e && e.message) || "error"; loadOsint([]); });
+  } else { OSN.error = "not loaded from file:// (open the page over http/https)"; loadOsint([]); }
+
+  // ------------------------------------------------------------------ exports (pins matching the current filters)
+  function currentIds() {
+    var F = window.BerlinMapFeatures;
+    return F && F.passIds ? F.passIds() : PINS.map(function (p, i) { return i; });
+  }
+  function precision(p) { return p.r ? "rough (district)" : p.a ? "approximate" : "street-level"; }
+  function featureProps(p) {
+    return {date: p.d, category: (CAT[p.c] || {}).label || p.c, title: p.t, type: p.ty, borough: p.b, precision: precision(p),
+      corridor: !!p.k, tags: p.g || [], source: p.u, status: "Anecdotal / reported (police release)"};
+  }
+  function geojson() {
+    var ids = currentIds();
+    return JSON.stringify({type: "FeatureCollection",
+      name: "Berlin crime map pins (" + ids.length + ", build " + X.ref + ")",
+      features: ids.map(function (i) { var p = PINS[i]; return {type: "Feature", geometry: {type: "Point", coordinates: [p.lo, p.la]}, properties: featureProps(p)}; })}, null, 1);
+  }
+  function kml() {
+    var ids = currentIds(), o = ['<?xml version="1.0" encoding="UTF-8"?>', '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>',
+      "<name>Berlin crime map pins (" + ids.length + ", build " + esc(X.ref) + ")</name>"];
+    ids.forEach(function (i) {
+      var p = PINS[i], f = featureProps(p);
+      o.push("<Placemark><name>" + esc(p.d + ": " + p.t) + "</name><description>" + esc(f.category + "; " + f.type + "; " + f.borough + "; " +
+        f.precision + "; source: " + f.source) + "</description><TimeStamp><when>" + esc(p.d) + "</when></TimeStamp><Point><coordinates>" +
+        p.lo + "," + p.la + "</coordinates></Point></Placemark>");
+    });
+    o.push("</Document></kml>");
+    return o.join("\n") + "\n";
+  }
+  function download(kind) {
+    var txt = kind === "kml" ? kml() : geojson();
+    var b = new Blob([txt], {type: kind === "kml" ? "application/vnd.google-earth.kml+xml" : "application/geo+json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = "berlin-crime-map-pins-" + X.ref + (kind === "kml" ? ".kml" : ".geojson");
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    return txt.length;
+  }
+
+  // ------------------------------------------------------------------ analytics sections (static HTML/SVG from build data)
+  var EX = X.exposure, T = X.trends;
+  function catLabel(id) { return (CAT[id] || {label: id}).label; }
+  function wowTxt(w) { var d = w[0] - w[1]; return w[0] + " vs " + w[1] + (d > 0 ? " (\u25b2" + d + ")" : d < 0 ? " (\u25bc" + (-d) + ")" : " (=)"); }
+  function exposureHtml() {
+    var h = ['<section class="p3-sec" id="p3-exposure"><h3>Corridor exposure: Central corridor (Tiergarten / Mitte)</h3><div class="p3-cards">'];
+    EX.windows.forEach(function (w) { h.push('<div class="p3-card"><b>' + EX.total[w] + "</b><span>last " + w + " days</span></div>"); });
+    h.push('<div class="p3-card"><b>' + esc(wowTxt(EX.tot_wow)) + "</b><span>this week vs previous week</span></div></div>");
+    var rows = CATS.filter(function (c) { return EX.bycat[c.id]["90"] > 0; });
+    h.push('<div class="p3-scroll"><table class="p3-tab"><thead><tr><th>Type</th><th>7 d</th><th>30 d</th><th>90 d</th><th>Week over week</th></tr></thead><tbody>');
+    rows.forEach(function (c) { var b = EX.bycat[c.id]; h.push("<tr><td>" + sw(c.color) + esc(c.label) + "</td><td>" + b["7"] + "</td><td>" + b["30"] + "</td><td>" + b["90"] + "</td><td>" + esc(wowTxt(EX.wow[c.id])) + "</td></tr>"); });
+    if (!rows.length) h.push('<tr><td colspan="5">No corridor pins in the last 90 days.</td></tr>');
+    h.push("</tbody></table></div><div class=\"an-note\">Counts of collected police releases with a street-level or approximate location inside the corridor (rough district-level pins are never counted). " +
+      "Windows end on the build date " + esc(dfmt(X.ref)) + ". Not a risk score.</div>");
+    h.push('<div class="p3-actions"><button type="button" id="p3-btn-brief">Briefing (print / save as PDF)</button>' +
+      '<button type="button" id="p3-btn-geojson">Export GeoJSON</button><button type="button" id="p3-btn-kml">Export KML</button>' +
+      '<span class="an-note">Exports and the briefing use the pins that match the current filters.</span></div></section>');
+    return h.join("");
+  }
+  function heatTable(rows, cols, cell, label) {
+    var max = 1; rows.forEach(function (r) { r.v.forEach(function (x) { if (x > max) max = x; }); });
+    var h = ['<div class="p3-scroll"><table class="p3-heat" aria-label="' + esc(label) + '"><thead><tr><th></th>'];
+    cols.forEach(function (c) { h.push("<th>" + esc(c) + "</th>"); });
+    h.push("</tr></thead><tbody>");
+    rows.forEach(function (r) {
+      h.push("<tr><th>" + r.h + "</th>");
+      r.v.forEach(function (x) { var t = x / max; h.push('<td style="background:' + (x ? ramp(0.15 + 0.85 * t) : "transparent") + ";color:" + ink(0.15 + 0.85 * t) + '">' + (x || "") + "</td>"); });
+      h.push("</tr>");
+    });
+    h.push("</tbody></table></div>");
+    return h.join("");
+  }
+  function trendsHtml() {
+    var h = ['<section class="p3-sec" id="p3-trends"><h3>Trends: pins by type per month (all months, incl. older than 12 months)</h3>'];
+    var rows = CATS.map(function (c) { return {h: sw(c.color) + esc(c.label), v: T.cat_month[c.id]}; })
+      .filter(function (r) { return r.v.some(function (x) { return x; }); });
+    h.push(heatTable(rows, T.months.map(mfmt), null, "Pins by type per month"));
+    h.push('<div class="an-note">' + T.n_pins + " pins counted, " + T.n_old + " of them older than 12 months (hidden on the map by default, always counted here).</div>");
+    h.push("<h3>Year on year: pins per month vs the same month a year earlier</h3>");
+    h.push('<div class="p3-scroll"><table class="p3-tab" id="p3-yoy"><thead><tr><th>Month</th><th>Pins</th><th>Year earlier</th><th>Pins</th><th>Change</th></tr></thead><tbody>' +
+      T.yoy.map(function (r) { var d = r.n - r.prev; return '<tr data-m="' + esc(r.m) + '" data-n="' + r.n + '" data-prev="' + r.prev + '"><td>' + esc(mfmt(r.m)) + "</td><td>" + r.n + "</td><td>" + esc(mfmt(r.prev_m)) + "</td><td>" + r.prev + "</td><td>" + (d > 0 ? "+" : "") + d + "</td></tr>"; }).join("") +
+      '</tbody></table></div><div class="an-note">OSINT pin counts depend on how many releases were collected per month (see the listed-vs-pinned chart); not a crime rate.</div>');
+    h.push("<h3>Trends: corridor pins by hour \u00d7 weekday (all dates)</h3>");
+    h.push(heatTable(T.corr_heat.map(function (r, i) { return {h: WD[i], v: r}; }), Array.apply(null, Array(24)).map(function (_, i) { return (i < 10 ? "0" : "") + i; }), null, "Corridor pins by hour and weekday"));
+    h.push('<div class="an-note">' + T.corr_heat_n + " corridor pins with a reported time; " + T.corr_heat_unknown + " without a time are left out.</div>");
+    var B = T.boro_hz, Y = B.years;
+    h.push("<h3>Boroughs: offences per 100,000 residents (" + Y[0] + " vs " + Y[1] + ")</h3>");
+    h.push('<label class="p3-sel">Offence <select id="p3-boro-k">' + Object.keys(B.labels).map(function (k) { return '<option value="' + k + '">' + esc(B.labels[k]) + "</option>"; }).join("") + "</select></label>");
+    h.push('<div id="p3-boro"></div><div class="an-note">Source: ' + esc(B.src) + ". Official rates (all reported offences), unlike the OSINT pin counts above.</div>");
+    h.push("<h3>Last 7 days vs the 4-week average</h3>");
+    var l = T.last7, rr = CATS.filter(function (c) { return l[c.id][0] || l[c.id][1]; });
+    h.push('<div class="p3-scroll"><table class="p3-tab"><thead><tr><th>Type</th><th>Last 7 days</th><th>4-week avg / week</th><th></th></tr></thead><tbody>');
+    h.push("<tr><td><b>All pins</b></td><td><b>" + T.last7_all[0] + "</b></td><td>" + T.last7_all[1] + "</td><td>" + bar(T.last7_all) + "</td></tr>");
+    rr.forEach(function (c) { h.push("<tr><td>" + sw(c.color) + esc(c.label) + "</td><td>" + l[c.id][0] + "</td><td>" + l[c.id][1] + "</td><td>" + bar(l[c.id]) + "</td></tr>"); });
+    h.push("</tbody></table></div><div class=\"an-note\">The latest week is often incomplete: police releases are collected with a delay.</div></section>");
+    return h.join("");
+  }
+  function bar(v) {
+    var m = Math.max(v[0], v[1], 1);
+    return '<span class="p3-bar" title="last 7 days"><i style="width:' + Math.round(100 * v[0] / m) + '%"></i></span><span class="p3-bar p3-bar-avg" title="4-week average"><i style="width:' + Math.round(100 * v[1] / m) + '%"></i></span>';
+  }
+  function boroRender() {
+    var box = $("p3-boro"); if (!box) return;
+    var B = T.boro_hz, k = ($("p3-boro-k") || {}).value || "tot", max = 1;
+    B.rows.forEach(function (r) { max = Math.max(max, r[k][0], r[k][1]); });
+    var rows = B.rows.slice().sort(function (a, b) { return b[k][1] - a[k][1]; });
+    box.innerHTML = '<div class="p3-scroll"><table class="p3-tab p3-boro"><thead><tr><th>Borough</th><th>' + B.years[0] + "</th><th>" + B.years[1] + "</th><th>Change</th><th></th></tr></thead><tbody>" +
+      rows.map(function (r) {
+        var a = r[k][0], b = r[k][1], ch = a ? Math.round(1000 * (b - a) / a) / 10 : 0;
+        return "<tr><td>" + esc(r.b) + "</td><td>" + a.toLocaleString("en-GB") + "</td><td><b>" + b.toLocaleString("en-GB") + "</b></td><td>" + (ch > 0 ? "+" : "") + ch + "%</td><td>" +
+          '<span class="p3-bar p3-bar-wide"><i style="width:' + Math.round(100 * b / max) + '%"></i><em style="left:' + Math.round(100 * a / max) + '%"></em></span></td></tr>';
+      }).join("") + "</tbody></table></div>";
+  }
+  function anomalyHtml() {
+    var f = X.anomaly.filter(function (a) { return a.flag; });
+    var h = ['<section class="p3-sec" id="p3-anomaly"><h3>Anomaly flags (not alerts)</h3>'];
+    h.push('<div class="an-note">A flag means the last 7 days have at least 3 pins and at least twice the median week of the previous 12 weeks. It is a prompt to look closer, not a warning.</div>');
+    h.push('<div class="p3-scroll"><table class="p3-tab"><thead><tr><th>Scope</th><th>Last 7 days</th><th>Median week (12 wks)</th><th>Flag</th></tr></thead><tbody>');
+    X.anomaly.filter(function (a) { return a.flag || a.n7 || a.median; }).forEach(function (a) {
+      h.push("<tr" + (a.flag ? ' class="p3-flag"' : "") + "><td>" + esc(a.label) + "</td><td>" + a.n7 + "</td><td>" + a.median + "</td><td>" + (a.flag ? "flag" : "\u2013") + "</td></tr>");
+    });
+    h.push("</tbody></table></div><div class=\"an-note\">" + f.length + " flag" + (f.length === 1 ? "" : "s") + " at build time.</div></section>");
+    return h.join("");
+  }
+  function layersHtml() {
+    return '<section class="p3-sec" id="p3-layers"><h3>Map layers added in this version (off by default)</h3><ul class="p3-list">' +
+      "<li><b>Hotspots</b>: " + hot.n + " serious-violence pins of the last " + hot.days + " days in " + hot.cells.length + " hex cells (" + hot.excluded_rough + " rough-location pins left out). " + esc(hot.label) + ".</li>" +
+      "<li><b>Historic unrest</b>: " + un.n + " pins " + esc(dfmt(un.first)) + " \u2013 " + esc(dfmt(un.last)) + " in " + un.cells.length + " cells (" + un.excluded_rough + " rough pins left out); matched by release wording (riot, attacks on police, barricades, assemblies, New Year\u2019s Eve).</li>" +
+      "<li><b>Infrastructure incidents</b>: " + X.infra.items.length + " (incidents only; no substations, pylons or other sites are mapped).</li>" +
+      "<li><b>Emergency</b>: " + E.er.length + " emergency hospitals, " + E.hosp.length + " other hospitals, " + E.police.length + " police stations, " + E.meet.length + " emergency meeting points" +
+      (E.mobile.length ? " (plus " + E.mobile.length + " mobile points without a fixed site: " + esc(E.mobile.join(", ")) + ")" : "") + ", " + E.stations.length + " U-/S-Bahn and main stations.</li>" +
+      "<li><b>OSINT unconfirmed</b>: <span id=\"p3-osint-n\">" + OSN.shown + "</span> current items from BERLIN osint_unconfirmed.json (confidence labels: " +
+        esc(Object.keys(OC).map(function (k) { return OC[k]; }).join("; ")) + "; items disappear after their expiry date).</li></ul>" +
+      '<div class="an-note">Turn layers on in the map\u2019s layer list. Rough-location pins (district centre) are drawn faded on the map.</div></section>';
+  }
+  function flashHtml() {
+    var h = ['<section class="p3-sec" id="p3-flash"><h3>Recurring flashpoint calendar (next 12 months)</h3><div class="p3-scroll"><table class="p3-tab"><thead><tr><th>Next</th><th>Event</th><th>Usual area</th><th>Unrest pins around last date (\u00b13 days)</th></tr></thead><tbody>'];
+    X.flash.events.forEach(function (e) {
+      if (!e.next) return;
+      h.push("<tr><td>" + esc(dfmt(e.next)) + (e.approx ? " (approx.)" : "") + "<br><small>in " + e.days_to + " days</small></td><td><b>" + esc(e.name) + "</b><br><small>" + esc(e.note) + "</small></td><td>" + esc(e.area) + "</td><td>" +
+        (e.last ? e.past_pins + " (" + esc(dfmt(e.last)) + ")" : "\u2013") + "</td></tr>");
+    });
+    h.push("</tbody></table></div><div class=\"an-note\">Public, recurring dates only. Areas: " + X.flash.areas.map(function (a) { return esc(a.name); }).join("; ") + ".</div></section>");
+    return h.join("");
+  }
+  function notableHtml() {
+    var h = ['<section class="p3-sec" id="p3-notable"><h3>Notable incidents timeline</h3><ol class="p3-tl">'];
+    X.notable.forEach(function (n) {
+      h.push("<li><time>" + esc(dfmt(n.d)) + "</time><b>" + esc(n.title) + "</b><div>" + esc(n.text || "") + (n.area ? " <small>(" + esc(n.area) + ")</small>" : "") + "</div>" +
+        ((n.src || []).length ? "<small>Sources: " + n.src.map(function (s) { return link(s.u, s.t); }).join("; ") + "</small>" : "") + "</li>");
+    });
+    return h.join("") + "</ol></section>";
+  }
+  function infraHtml() {
+    var I = X.infra, h = ['<section class="p3-sec" id="p3-infra"><h3>Infrastructure incidents</h3><div class="an-note">Hand-tagged from public police and press releases. Tags: ' +
+      Object.keys(I.tag_labels).map(function (k) { return esc(k.replace("-", " ")) + " " + (I.tags[k] || 0); }).join(" \u00b7 ") + ". Incidents only; no standing infrastructure sites are shown.</div><ul class=\"p3-list\">"];
+    I.items.forEach(function (it) {
+      h.push("<li>" + esc(dfmt(it.d)) + ": " + link(it.u, it.t) + " <small>(" + esc(it.b) + ")</small> " + it.g.map(function (g) { return '<span class="b3-badge b3-tag">' + esc(g.replace("-", " ")) + "</span>"; }).join("") + "</li>");
+    });
+    return h.join("") + "</ul></section>";
+  }
+  function emergHtml() {
+    return '<section class="p3-sec" id="p3-emerg"><h3>Emergency layer sources</h3><ul class="p3-list">' +
+      ["er", "hosp", "police", "meet", "stations"].map(function (k) { return "<li>" + esc(E.src[k]) + "</li>"; }).join("") +
+      (E.missing.length ? "<li>Not placed (no reliable position): " + esc(E.missing.join("; ")) + "</li>" : "") + "</ul></section>";
+  }
+  function feedsHtml() {
+    var n = window.BerlinFeeds ? window.BerlinFeeds.ids.length : 4;
+    return '<section class="p3-sec" id="p3-feeds"><h3>Live feeds</h3><div class="an-note">' + n + " public feeds, read while this page is open " +
+      "(weather warnings every 10 min, road and motorway closures hourly, assemblies on load and every 6 h). Text only: nothing is drawn on the map " +
+      "and nothing alerts. If a source cannot be reached the box says so and keeps the last update.</div></section>";
+  }
+  function renderAnalytics() {
+    var wrap = document.querySelector("#berlin-an-view .an-wrap");
+    if (!wrap || $("p3-exposure")) return;
+    var top = document.createElement("div"); top.id = "p3-an-top"; top.innerHTML = exposureHtml();
+    var sum = $("an-summary"); wrap.insertBefore(top, sum ? sum.nextSibling : wrap.firstChild);
+    var bot = document.createElement("div"); bot.id = "p3-an-bottom";
+    bot.innerHTML = trendsHtml() + anomalyHtml() + layersHtml() + flashHtml() + notableHtml() + infraHtml() + emergHtml() + feedsHtml();
+    wrap.appendChild(bot);
+    boroRender();
+    $("p3-boro-k").addEventListener("change", boroRender);
+    $("p3-btn-geojson").addEventListener("click", function () { download("geojson"); });
+    $("p3-btn-kml").addEventListener("click", function () { download("kml"); });
+    $("p3-btn-brief").addEventListener("click", function () { briefing(true); });
+  }
+
+  // ------------------------------------------------------------------ briefing (client-side print; "Save as PDF" in the print dialog)
+  function briefing(doPrint) {
+    var old = $("p3-brief"); if (old) old.remove();
+    var F = window.BerlinMapFeatures, st = F && F.state ? F.state() : {}, ids = currentIds();
+    var recent = ids.map(function (i) { return PINS[i]; }).filter(function (p) { return p.d; })
+      .sort(function (a, b) { return a.d < b.d ? 1 : a.d > b.d ? -1 : 0; }).slice(0, 25);
+    var flags = X.anomaly.filter(function (a) { return a.flag; });
+    var soon = X.flash.events.filter(function (e) { return e.next && e.days_to <= 60; });
+    var d = document.createElement("section"); d.id = "p3-brief"; d.setAttribute("aria-hidden", "true");
+    d.innerHTML = "<h1>Berlin crime map: briefing</h1><p class=\"p3-b-meta\">Data as of " + esc(dfmt(X.ref)) + " \u00b7 printed " + esc(new Date().toISOString().slice(0, 10)) +
+      " \u00b7 " + ids.length + " pins match the filters" + (st.corr ? " (Central corridor only)" : "") + (st.q ? " \u00b7 search \u201c" + esc(st.q) + "\u201d" : "") + "</p>" +
+      "<h2>Central corridor (Tiergarten / Mitte)</h2><p>" + EX.total["7"] + " pins in the last 7 days, " + EX.total["30"] + " in 30 days, " + EX.total["90"] + " in 90 days. This week vs previous: " + esc(wowTxt(EX.tot_wow)) + ".</p>" +
+      "<h2>City-wide: last 7 days vs 4-week average</h2><p>" + T.last7_all[0] + " pins vs " + T.last7_all[1] + " per week on average.</p>" +
+      "<h2>Anomaly flags</h2><p>" + (flags.length ? flags.map(function (a) { return esc(a.label) + " (" + a.n7 + " vs median " + a.median + ")"; }).join("; ") : "None.") + "</p>" +
+      "<h2>Recurring dates in the next 60 days</h2><p>" + (soon.length ? soon.map(function (e) { return esc(dfmt(e.next) + ": " + e.name + " (" + e.area + ")"); }).join("; ") : "None.") + "</p>" +
+      "<h2>Most recent matching pins</h2><table><thead><tr><th>Date</th><th>Type</th><th>Borough</th><th>Report</th></tr></thead><tbody>" +
+      recent.map(function (p) { return "<tr><td>" + esc(p.d) + "</td><td>" + esc(catLabel(p.c)) + "</td><td>" + esc(p.b) + "</td><td>" + esc(p.t) + (p.r ? " <i>(rough location)</i>" : "") + "</td></tr>"; }).join("") +
+      "</tbody></table><p class=\"p3-b-foot\">Anecdotal / reported pins from Polizei Berlin press releases, collected by hand; incomplete and not a crime rate. Official rates: Kriminalit\u00e4tsatlas Berlin. Map data \u00a9 OpenStreetMap contributors (ODbL) where geocoded.</p>";
+    document.body.appendChild(d);
+    if (doPrint) setTimeout(function () { window.print(); }, 50);
+    return {pins: ids.length, rows: recent.length, flags: flags.length, soon: soon.length};
+  }
+
+  // ------------------------------------------------------------------ offline (PWA): service worker only over http(s)
+  var swState = "not registered";
+  if ("serviceWorker" in navigator && window.isSecureContext && /^https?:$/.test(location.protocol)) {
+    swState = "registering";
+    navigator.serviceWorker.register("BERLIN%20sw.js", {scope: "./"}).then(function () { swState = "registered"; }, function (e) { swState = "failed: " + (e && e.message); });
+  }
+  function onLine() { document.body.classList.toggle("p3-offline", navigator.onLine === false); }
+  window.addEventListener("online", onLine); window.addEventListener("offline", onLine); onLine();
+  var chip = document.createElement("div"); chip.id = "p3-offline-chip"; chip.setAttribute("role", "status");
+  chip.textContent = "Offline copy: data as of " + dfmt(X.ref); document.body.appendChild(chip);
+
+  // ------------------------------------------------------------------ 21h: 'Show older than 12 months' toggle (default off)
+  // Drives the existing 'Pins: older than 365 days' overlay; old pins stay in the data and in Timeline / Analytics either way.
+  var OLD = null;
+  if (LC && LC._layers) LC._layers.forEach(function (o) { if (o.overlay && /older than 365 days/.test(o.name)) OLD = o.layer; });
+  var oldBtn = null;
+  function oldSync() { if (oldBtn) oldBtn.setAttribute("aria-pressed", OLD && MAIN && MAIN.hasLayer(OLD) ? "true" : "false"); }
+  function setOld(on) { if (!OLD || !MAIN) return; if (on && !MAIN.hasLayer(OLD)) MAIN.addLayer(OLD); if (!on && MAIN.hasLayer(OLD)) MAIN.removeLayer(OLD); oldSync(); }
+  (function () {
+    var row = document.querySelector("#berlin-toolbar .tb-row1"), after = $("btn-new");
+    if (!row || !OLD) return;
+    oldBtn = document.createElement("button");
+    oldBtn.type = "button"; oldBtn.id = "btn-old"; oldBtn.className = "tb-toggle";
+    oldBtn.title = esc("Show pins older than 12 months on the map (always counted in Timeline and Analytics)");
+    oldBtn.innerHTML = esc("Show older than 12 months");
+    oldBtn.addEventListener("click", function () { setOld(!(MAIN && MAIN.hasLayer(OLD))); });
+    if (after && after.parentNode === row) row.insertBefore(oldBtn, after.nextSibling); else row.appendChild(oldBtn);
+    if (MAIN) { MAIN.on("layeradd layerremove", function (e) { if (e.layer === OLD) oldSync(); }); }
+    oldSync();
+  })();
+
+  renderAnalytics();
+  window.BerlinP3 = {
+    ref: X.ref, layers: function () { return ORDER.map(function (o) { return [o[0], o[1].replace(/<[^>]+>/g, ""), LAYERS[o[0]].getLayers().length, !!(MAIN && MAIN.hasLayer(LAYERS[o[0]]))]; }); },
+    layer: function (k) { return LAYERS[k]; }, geojson: geojson, kml: kml, download: download, briefing: briefing,
+    sw: function () { return swState; }, ids: currentIds, hasControl: !!LC,
+    osint: function () { return JSON.parse(JSON.stringify(OSN)); }, loadOsint: loadOsint, strip: stripHN, crude: crudeHN, oldOn: function () { return !!(OLD && MAIN && MAIN.hasLayer(OLD)); }, setOld: setOld, oldCount: function () { return OLD ? OLD.getLayers().length : -1; }, hnReady: function () { return !!HN; }, clean: clean
+  };
+})();
+;
+/* Phase 3b live feeds (21g3, Timmay decisions). Four read-only public feeds, each behind its own build-time flag:
+   DWD weather warnings (every 10 min), VIZ road closures (hourly), Autobahn closures/warnings on Berlin's motorways
+   (hourly, generic text only) and the Polizei Berlin assembly list (on load and every 6 h).
+   fetch(): credentials "omit", referrerPolicy "no-referrer", 15 s timeout; text only, through the shared esc().
+   No alerts, notifications, sounds or drawn routes; nothing is stored; the service worker never caches these responses.
+   Each feed shows "Updated <time>" or "Unavailable" (with the last successful update, if any). */
+(function () {
+  "use strict";
+  var P = window.BERLIN_P2, J = P.J, esc = P.esc;
+  var CFG = (J.p3 && J.p3.feeds) || {flags: {}, any_on: false};
+  var MIN = 60000;
+  // 21h fail-closed: without the shared stripper, digits after a word are dropped and the assembly address field is hidden
+  function hnOK() { return !!(window.BerlinP3 && window.BerlinP3.strip && window.BerlinP3.hnReady && window.BerlinP3.hnReady()); }
+  function strip(t) {
+    t = String(t);
+    if (window.BerlinP3 && window.BerlinP3.strip) { try { return window.BerlinP3.strip(t); } catch (e) { /* fall through */ } }
+    return t.replace(/([\p{L}.)-])\s+\d{1,4}(?!\d)(?:\s?[a-zA-Z](?![\p{L}]))?(?:\s?[-\u2013/]\s?\d{1,4}[a-zA-Z]?)?(?![\d.:,]\d|\.\s?\p{L})/gu, "$1");
+  }
+  function txt(v) { return strip(String(v == null ? "" : v).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()); }
+  function cut(t, n) { return t.length > n ? t.slice(0, n - 1) + "\u2026" : t; }
+  function bTime(d) { return d.toLocaleTimeString("en-GB", {timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit"}); }
+  function bDay(d) { return d.toLocaleDateString("en-GB", {timeZone: "Europe/Berlin", weekday: "short", day: "numeric", month: "short"}); }
+  function berlinYMD(d) {
+    try { return new Intl.DateTimeFormat("en-CA", {timeZone: "Europe/Berlin", year: "numeric", month: "2-digit", day: "2-digit"}).format(d); }
+    catch (e) { return d.toISOString().slice(0, 10); }
+  }
+  function deDate(s) { var m = /^(\d{2})\.(\d{2})\.(\d{4})(?: (\d{2}):(\d{2}))?/.exec(s || ""); return m ? m[3] + "-" + m[2] + "-" + m[1] + (m[4] ? " " + m[4] + ":" + m[5] : "") : ""; }
+  function inBerlin(la, lo) { return la > 52.33 && la < 52.68 && lo > 13.08 && lo < 13.77; }
+  var ROADS = ["A100", "A103", "A111", "A113", "A114", "A115", "A117"];
+  var FEEDS = {
+    dwd: {name: "Weather warnings for Berlin (Deutscher Wetterdienst)", every: 10 * MIN, credit: "Quelle: Deutscher Wetterdienst",
+      urls: ["https://maps.dwd.de/geoserver/dwd/ows?service=WFS&version=2.0.0&request=GetFeature&typeName=dwd:Warnungen_Landkreise" +
+        "&outputFormat=application/json&propertyName=AREADESC,EVENT,SEVERITY,HEADLINE,ONSET,EXPIRES&CQL_FILTER=" + encodeURIComponent("GC_STATE='BE'")],
+      parse: function (js) {
+        var seen = {}, out = [];
+        (js[0].features || []).forEach(function (f) {
+          var p = f.properties || {}, k = p.EVENT + "|" + p.ONSET + "|" + p.EXPIRES;
+          if (seen[k]) return; seen[k] = 1;
+          var ex = p.EXPIRES ? new Date(p.EXPIRES) : null;
+          out.push(txt(p.SEVERITY) + ": " + txt(p.HEADLINE) + (ex && !isNaN(ex) ? " (until " + bDay(ex) + " " + bTime(ex) + ")" : ""));
+        });
+        return {items: out, empty: "No weather warnings for Berlin."};
+      }},
+    viz: {name: "Road closures in Berlin (VIZ Berlin)", every: 60 * MIN, credit: "VIZ Berlin",
+      urls: ["https://api.viz.berlin.de/daten/baustellen_sperrungen.json"],
+      parse: function (js) {
+        var now = berlinYMD(new Date()) + " " + bTime(new Date()), out = [];
+        (js[0].features || []).forEach(function (f) {
+          var p = f.properties || {}, v = p.validity || {};
+          if (!/^(?:Sperrung|Fahrstreifensperrung|Unfall|Gefahr)$/.test(p.subtype || "")) return;
+          var a = deDate(v.from), b = deDate(v.to);
+          if ((a && a > now) || (b && b < now)) return;
+          out.push({k: txt(p.street), t: txt(p.subtype) + ": " + txt(p.street) + (p.section ? " (" + cut(txt(p.section), 90) + ")" : "") + (b ? ", until " + b.slice(8, 10) + "." + b.slice(5, 7) + "." : "")});
+        });
+        out.sort(function (x, y) { return x.k < y.k ? -1 : x.k > y.k ? 1 : 0; });
+        return {items: out.map(function (o) { return o.t; }), empty: "No current closures listed."};
+      }},
+    autobahn: {name: "Motorway closures and warnings in Berlin (Autobahn GmbH)", every: 60 * MIN, credit: "Autobahn GmbH des Bundes",
+      urls: ROADS.reduce(function (a, r) { return a.concat(["closure", "warning"].map(function (s) { return "https://verkehr.autobahn.de/o/autobahn/" + r + "/services/" + s; })); }, []),
+      parse: function (js) {
+        var seen = {}, out = [];
+        js.forEach(function (j) {
+          if (!j) return;
+          (j.closure || j.warning || []).forEach(function (c) {
+            var co = c.coordinate || {}, la = parseFloat(co.lat), lo = parseFloat(co.long);
+            if (seen[c.identifier] || String(c.future) === "true" || String(c.future) === "True" || !inBerlin(la, lo)) return;
+            seen[c.identifier] = 1;
+            out.push(txt(c.title) + (c.subtitle ? " \u2014 " + txt(c.subtitle) : ""));  // generic text only: no geometry, no route advice
+          });
+        });
+        out.sort();
+        return {items: out, empty: "No motorway closures or warnings in Berlin."};
+      }},
+    assembly: {name: "Registered assemblies, next 7 days (Polizei Berlin)", every: 6 * 60 * MIN, credit: "Polizei Berlin, Versammlungsbeh\u00f6rde",
+      urls: ["https://www.berlin.de/polizei/service/versammlungsbehoerde/versammlungen-aufzuege/index.php/index/all.json?q="],
+      parse: function (js) {
+        var today = berlinYMD(new Date()), end = berlinYMD(new Date(Date.now() + 6 * 864e5)), out = [];
+        (js[0].index || []).forEach(function (r) {
+          var d = deDate(r.datum); if (!d || d < today || d > end) return;
+          var place = (hnOK() ? txt(r.strasse_nr) : "") || (r.aufzugsstrecke ? "march" : "");  // fail closed: no address without the patterns
+          out.push({k: d + " " + (r.von || ""), t: d.slice(8, 10) + "." + d.slice(5, 7) + ". " + txt(r.von) + "\u2013" + txt(r.bis) + ": " + cut(txt(r.thema), 140) +
+            (place ? " \u2014 " + cut(place, 60) : "") + (r.plz ? " (" + txt(r.plz) + ")" : "") + (r.aufzugsstrecke ? " [march]" : "")});
+        });
+        out.sort(function (x, y) { return x.k < y.k ? -1 : x.k > y.k ? 1 : 0; });
+        return {items: out.map(function (o) { return o.t; }), empty: "No assemblies registered for the next 7 days."};
+      }}
+  };
+  Object.keys(FEEDS).forEach(function (k) { if (!(CFG.flags || {})[k]) delete FEEDS[k]; });
+  var STATE = {};
+  Object.keys(FEEDS).forEach(function (k) { STATE[k] = {last: null, lastAt: 0, items: [], empty: "", error: "", tries: 0, partial: 0}; });
+  function render() {
+    var box = document.getElementById("p3-feeds"); if (!box) return;
+    var out = box.querySelector(".p3-feed-out");
+    if (!out) { out = document.createElement("div"); out.className = "p3-feed-out"; box.appendChild(out); }
+    out.innerHTML = Object.keys(FEEDS).map(function (k) {
+      var s = STATE[k], f = FEEDS[k], lab;
+      if (s.error) lab = "Unavailable (" + esc(s.error) + ")" + (s.last ? "; last updated " + esc(s.last) + " (Berlin time)" : "");
+      else if (s.last) lab = "Updated " + esc(s.last) + " (Berlin time)" + (s.partial ? "; " + s.partial + " of " + f.urls.length + " requests failed" : "");
+      else lab = "Loading\u2026";
+      return '<div class="p3-feed" id="p3-feed-' + k + '" data-state="' + (s.error ? "unavailable" : s.last ? "ok" : "loading") + '" data-n="' + s.items.length + '">' +
+        "<h4>" + esc(f.name) + '</h4><div class="an-note p3-feed-status">' + lab + " \u00b7 Source: " + esc(f.credit) + "</div>" +
+        (s.last && !s.items.length ? '<div class="an-note">' + esc(s.empty) + "</div>" : "") +
+        "<ul>" + s.items.slice(0, 40).map(function (t) { return "<li>" + esc(t) + "</li>"; }).join("") + "</ul>" +
+        (s.items.length > 40 ? '<div class="an-note">\u2026 and ' + (s.items.length - 40) + " more.</div>" : "") + "</div>";
+    }).join("");
+  }
+  function get(url) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var to = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
+    return fetch(url, {mode: "cors", credentials: "omit", referrerPolicy: "no-referrer", cache: "no-cache", signal: ctl ? ctl.signal : undefined})
+      .then(function (r) { clearTimeout(to); if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(function (t) { return JSON.parse(t); }, function (e) { clearTimeout(to); throw e; });
+  }
+  function getRetry(url) {  // 21h: one retry after 3 s on a timeout / network error (no retry on HTTP errors or bad data)
+    return get(url).catch(function (e) {
+      if (e && (e.name === "AbortError" || e instanceof TypeError)) return new Promise(function (ok) { setTimeout(ok, 3000); }).then(function () { return get(url); });
+      throw e;
+    });
+  }
+  function seq(urls) {  // one request at a time, 250 ms apart (Autobahn: 14 small requests per hour)
+    var res = [], fails = 0, i = 0;
+    return new Promise(function (done) {
+      (function next() {
+        if (i >= urls.length) { done({res: res, fails: fails}); return; }
+        getRetry(urls[i++]).then(function (j) { res.push(j); }, function (e) { fails++; res.push(null); res.lastErr = e && e.name === "SyntaxError" ? "bad data" : e && e.name === "AbortError" ? "timeout" : /^HTTP \d+$/.test((e && e.message) || "") ? e.message : "network error"; })
+          .then(function () { setTimeout(next, urls.length > 1 ? 250 : 0); });
+      })();
+    });
+  }
+  function pull(k) {
+    var f = FEEDS[k], s = STATE[k];
+    s.tries++;
+    return seq(f.urls).then(function (r) {
+      if (r.fails === f.urls.length) throw new Error(r.res.lastErr || "network error");
+      var p = f.parse(r.res);
+      s.items = p.items; s.empty = p.empty; s.error = ""; s.partial = r.fails; s.lastAt = Date.now(); s.last = bTime(new Date());
+    }).catch(function (e) {
+      var m = (e && e.message) || "";
+      s.error = /^(?:HTTP \d+|bad data|timeout|network error)$/.test(m) ? m : (e && e.name === "SyntaxError") || e instanceof TypeError ? "bad data" : "network error";
+    }).then(render);
+  }
+  window.BerlinFeeds = {
+    flags: CFG.flags || {}, anyOn: !!CFG.any_on, ids: Object.keys(FEEDS),
+    status: function () { return Object.keys(FEEDS).map(function (k) { var s = STATE[k];
+      return {id: k, name: FEEDS[k].name, on: true, every_min: FEEDS[k].every / MIN, requests: FEEDS[k].urls.length, last: s.last, n: s.items.length, error: s.error, tries: s.tries, partial: s.partial}; }); },
+    refresh: function (k) { return pull(k); }
+  };
+  if (!Object.keys(FEEDS).length) return;
+  render();
+  Object.keys(FEEDS).forEach(function (k, i) {
+    setTimeout(function () { pull(k); }, 300 * i);  // stagger the first pulls
+    setInterval(function () { if (!document.hidden) pull(k); }, FEEDS[k].every);
+  });
+  document.addEventListener("visibilitychange", function () {  // catch up when the tab comes back after a missed refresh
+    if (document.hidden) return;
+    Object.keys(FEEDS).forEach(function (k) { if (STATE[k].lastAt && Date.now() - STATE[k].lastAt > FEEDS[k].every) pull(k); });
+  });
 })();

@@ -2,7 +2,7 @@
    file:// (offline zip) fetch is blocked, so it loads the same data from BERLIN data.js. Then it runs BERLIN app.js. */
 (function () {
   "use strict";
-  var DATAV = "470eacd7deea", APPV = "646c20f19871";
+  var DATAV = "36041e070f72", APPV = "1e188f4c442f";
   var box = document.getElementById("berlin-boot");
   function fail(msg) {
     var d = document.createElement("div");
