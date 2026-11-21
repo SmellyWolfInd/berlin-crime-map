@@ -1,0 +1,816 @@
+                #map_48f0769d618c5b3669fcdd5c4e0dca28 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            
+html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumpopup {
+                            margin: auto;
+                        }
+                       .foliumpopup table{
+                            margin: auto;
+                        }
+                        .foliumpopup tr{
+                            text-align: left;
+                        }
+                        .foliumpopup th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumpopup {
+                            margin: auto;
+                        }
+                       .foliumpopup table{
+                            margin: auto;
+                        }
+                        .foliumpopup tr{
+                            text-align: left;
+                        }
+                        .foliumpopup th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumpopup {
+                            margin: auto;
+                        }
+                       .foliumpopup table{
+                            margin: auto;
+                        }
+                        .foliumpopup tr{
+                            text-align: left;
+                        }
+                        .foliumpopup th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumtooltip {
+                            
+                        }
+                       .foliumtooltip table{
+                            margin: auto;
+                        }
+                        .foliumtooltip tr{
+                            text-align: left;
+                        }
+                        .foliumtooltip th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+                        .foliumpopup {
+                            margin: auto;
+                        }
+                       .foliumpopup table{
+                            margin: auto;
+                        }
+                        .foliumpopup tr{
+                            text-align: left;
+                        }
+                        .foliumpopup th{
+                            padding: 2px; padding-right: 8px;
+                        }
+                    
+      /* FA Classic solid for AwesomeMarkers (prefix fa → .fa / .fas) */
+      .awesome-marker i.fa, .awesome-marker i.fas {
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900 !important;
+      }
+      /* FA Free has no knife glyph (Pro-only); alias to user-slash */
+      .fa-knife:before, i.fa.fa-knife:before, i.fas.fa-knife:before {
+        content: "\f506" !important;
+        font-family: "Font Awesome 6 Free" !important;
+        font-weight: 900 !important;
+      }
+      /* Full-screen button sprite: see BERLIN app.css (Phase 2) */
+      /* Keep layer control from colliding with floating legend */
+      .leaflet-top.leaflet-right {
+        max-height: calc(100dvh - 120px);
+        overflow: visible;
+      }
+      .leaflet-control-layers {
+        margin-right: 10px !important;
+        z-index: 1000 !important;
+      }
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        min-height: 100dvh;
+        overflow: hidden;
+        font-family: sans-serif;
+      }
+      .folium-map {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0 !important;
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+      }
+      #berlin-chrome {
+        flex: 0 0 auto;
+        background: #fff;
+        border-bottom: 1px solid #d5d5d5;
+        z-index: 1000;
+      }
+      #berlin-chrome summary,
+      #berlin-legend-slot summary {
+        cursor: pointer;
+        padding: 8px 12px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        white-space: normal;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+      }
+      #berlin-chrome .panel-body,
+      #berlin-legend-slot .panel-body {
+        padding: 0 12px 10px 12px;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+      }
+      .leaflet-bar a,
+      .leaflet-control-zoom a,
+      .leaflet-control-layers-toggle {
+        width: 44px !important;
+        height: 44px !important;
+        line-height: 44px !important;
+      }
+      .leaflet-control-layers-toggle {
+        background-size: 28px 28px !important;
+      }
+      .leaflet-control-layers {
+        box-sizing: border-box;
+      }
+      .leaflet-control-layers-expanded {
+        box-sizing: border-box !important;
+        max-width: min(360px, calc(100vw - 20px)) !important;
+        width: max-content;
+        overflow-x: hidden !important;
+        padding: 8px 12px 8px 10px !important;
+      }
+      .leaflet-control-layers-list,
+      .leaflet-control-layers-base,
+      .leaflet-control-layers-overlays {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      .leaflet-control-layers-expanded .leaflet-control-layers-list,
+      .leaflet-control-layers-scrollbar {
+        max-height: min(70vh, 70dvh) !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch;
+      }
+      .leaflet-control-layers label {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        min-height: 44px;
+        margin: 0;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.3;
+        padding: 4px 0;
+      }
+      .leaflet-control-layers label span {
+        flex: 1 1 auto;
+        min-width: 0;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .leaflet-control-layers-selector {
+        flex: 0 0 auto;
+        width: 22px;
+        height: 22px;
+        margin-top: 2px;
+      }
+      .legend.leaflet-control {
+        box-sizing: border-box;
+        max-width: min(450px, calc(100vw - 16px));
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        background: rgba(255,255,255,0.92);
+        border-radius: 4px;
+        padding: 2px 4px;
+      }
+      .leaflet-control-attribution {
+        max-width: min(100vw - 8px, 420px);
+        overflow-wrap: anywhere;
+        font-size: 11px !important;
+        line-height: 1.25;
+      }
+      .leaflet-popup {
+        max-width: min(92vw, 360px) !important;
+      }
+      .leaflet-popup-content-wrapper {
+        max-width: min(92vw, 360px) !important;
+      }
+      .leaflet-popup-content {
+        width: auto !important;
+        min-width: min(240px, 88vw) !important;
+        max-width: min(92vw, 340px) !important;
+        margin: 12px 14px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        word-break: normal !important;
+      }
+      .leaflet-popup-content > div {
+        width: auto !important;
+        max-width: 100% !important;
+        height: auto !important;
+        min-width: 0 !important;
+      }
+      .berlin-popup, .city-popup {
+        min-width: min(240px, 88vw);
+        max-width: min(92vw, 340px);
+        width: auto;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+        word-break: normal;
+        white-space: normal;
+      }
+      @media (max-width: 768px) {
+        #berlin-chrome summary,
+        #berlin-chrome .panel-body,
+        #berlin-legend-slot,
+        #berlin-legend-slot summary,
+        #berlin-legend-slot .panel-body,
+        .leaflet-control-layers,
+        .leaflet-control-layers label,
+        .leaflet-bar a {
+          font-size: 16px !important;
+        }
+        .leaflet-top.leaflet-right,
+        .leaflet-bottom.leaflet-right {
+          max-width: calc(100vw - 8px);
+        }
+        .leaflet-control-layers-expanded {
+          max-width: calc(100vw - 16px) !important;
+          font-size: 16px !important;
+        }
+        .leaflet-control-layers-expanded .leaflet-control-layers-list,
+        .leaflet-control-layers-scrollbar {
+          max-height: min(65vh, 65dvh) !important;
+        }
+        .leaflet-control-layers label {
+          align-items: flex-start;
+        }
+        .legend.leaflet-control {
+          max-width: calc(100vw - 12px) !important;
+          margin: 4px 6px 0 0 !important;
+        }
+        .leaflet-control-attribution {
+          max-width: calc(100vw - 56px);
+          padding: 2px 6px !important;
+        }
+        .leaflet-popup {
+          max-width: calc(100vw - 24px) !important;
+        }
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-content {
+          max-width: calc(100vw - 36px) !important;
+        }
+        /* Phone: navigator hidden (Leaflet-MiniMap re-expands on narrow viewports) */
+        .leaflet-control-minimap {
+          display: none !important;
+        }
+        #berlin-legend-slot {
+          position: static !important;
+          left: auto !important;
+          right: auto !important;
+          bottom: auto !important;
+          flex: 0 1 auto;
+          max-width: none !important;
+          max-height: 40dvh;
+          overflow: auto;
+          background: #fff;
+          border-bottom: 1px solid #d5d5d5;
+          box-shadow: none;
+          z-index: 1000;
+        }
+      }
+      @media (max-width: 430px) {
+        .leaflet-control-layers-expanded {
+          max-width: calc(100vw - 12px) !important;
+          padding: 6px 10px 6px 8px !important;
+        }
+        .leaflet-control-layers-expanded .leaflet-control-layers-list,
+        .leaflet-control-layers-scrollbar {
+          max-height: min(60vh, 60dvh) !important;
+        }
+      }
+      @media (min-width: 769px) {
+        #berlin-chrome {
+          max-height: 30dvh;
+          overflow: auto;
+        }
+        #berlin-chrome .panel-body {
+          font-size: 14px;
+        }
+        #berlin-legend-slot {
+          position: absolute;
+          left: 12px;
+          bottom: 52px;  /* clear the scale bar (was 28px) */
+          right: auto;
+          z-index: 850;
+          max-width: min(300px, 32vw);
+          max-height: min(42vh, calc(100% - 130px));
+          overflow: auto;
+          background: rgba(255,255,255,0.94);
+          border-radius: 8px;
+          box-shadow: 0 1px 4px rgba(0,0,0,.2);
+          font-size: 13px;
+        }
+        /* Branca colormap stays bottom-right; keep clear of layer toggle */
+        .legend.leaflet-control {
+          margin-bottom: 52px !important;
+          margin-right: 10px !important;
+        }
+      }
+    
+  .berlin-layers-close { display: block; margin: 0 0 6px auto; min-height: 44px; min-width: 88px; padding: 6px 12px;
+    font: inherit; font-size: 15px; background: #f1f3f5; color: #1a202c; border: 1px solid #9aa5b1; border-radius: 6px; cursor: pointer; }
+  body.berlin-dark .berlin-layers-close { background: #2d3748; color: #f7fafc; border-color: #718096; }
+  #berlin-toolbar { flex: 0 0 auto; position: relative; background: #f4f6f8; border-bottom: 1px solid #d5d5d5;
+    z-index: 1100; font-size: 14px; box-sizing: border-box; color: #1a202c; }
+  .tb-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 8px; }
+  #berlin-toolbar button, #berlin-tl-controls button, #berlin-tl-controls select, #theme-select, #berlin-search {
+    font: inherit; min-height: 38px; padding: 4px 10px; border: 1px solid #b8c0cc; background: #fff;
+    border-radius: 6px; cursor: pointer; color: #1a202c; box-sizing: border-box; }
+  #berlin-search { cursor: text; width: 210px; }
+  #berlin-toolbar button.active, #berlin-toolbar button[aria-pressed="true"].tb-toggle {
+    background: #1a365d; color: #fff; border-color: #1a365d; }
+  #berlin-toolbar .tb-status { color: #444; font-size: 12px; margin-left: auto; }
+  .tb-theme { display: inline-flex; align-items: center; gap: 4px; }
+  .tb-sep { width: 1px; align-self: stretch; background: #d0d6de; margin: 0 2px; }
+  #btn-legend { display: none; }
+  #link-box { display: flex; gap: 6px; align-items: center; padding: 0 8px 6px 8px; font-size: 12px; }
+  #link-box[hidden] { display: none !important; }
+  #link-box input { flex: 1 1 auto; min-width: 0; font: inherit; padding: 4px 6px; }
+  #berlin-type-panel { position: absolute; top: 100%; left: 8px; z-index: 1200; background: #fff;
+    border: 1px solid #c8c8c8; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,.25);
+    padding: 8px 10px; width: min(380px, calc(100vw - 16px)); box-sizing: border-box;
+    max-height: min(70vh, 70dvh); overflow: auto; color: #1a202c; }
+  #berlin-type-panel[hidden] { display: none !important; }
+  .btf-actions { display: flex; gap: 6px; margin-bottom: 6px; }
+  .btf-head { display: flex; font-size: 11px; color: #555; padding: 0 0 2px 0; }
+  .btf-head span:first-child { flex: 1 1 auto; }
+  .btf-row { display: flex; align-items: center; gap: 8px; min-height: 38px; cursor: pointer; }
+  .btf-row input { width: 20px; height: 20px; margin: 0; flex: 0 0 20px; }
+  .btf-ico, .tl-pin { display: inline-flex; align-items: center; justify-content: center; color: #fff;
+    border-radius: 50%; box-sizing: border-box; }
+  .btf-ico { width: 24px; height: 24px; font-size: 12px; flex: 0 0 24px; }
+  .btf-ico i, .tl-pin i { font-family: "Font Awesome 6 Free" !important; font-weight: 900 !important; font-style: normal; }
+  .btf-label { flex: 1 1 auto; overflow-wrap: anywhere; line-height: 1.25; }
+  .btf-cnt { font-variant-numeric: tabular-nums; color: #444; font-size: 12px; white-space: nowrap; }
+  .btf-row.off .btf-label, .btf-row.off .btf-cnt { color: #6b7280; }
+  .btf-note { font-size: 11px; color: #4a5568; margin-top: 6px; line-height: 1.4; }
+  #berlin-tl-view, #berlin-an-view { display: none; flex: 1 1 auto; min-height: 0; }
+  #berlin-tl-view { flex-direction: column; }
+  body.berlin-tl-on #berlin-tl-view { display: flex; }
+  body.berlin-an-on #berlin-an-view { display: block; overflow: auto; background: #fff; color: #1a202c; }
+  body.berlin-tl-on .folium-map, body.berlin-tl-on #berlin-legend-slot,
+  body.berlin-an-on .folium-map, body.berlin-an-on #berlin-legend-slot { display: none !important; }
+  body.berlin-tl-on #tb-status, body.berlin-an-on #tb-status { display: none; }
+  #berlin-tl-map { flex: 1 1 auto; min-height: 140px; }
+  #berlin-tl-controls { flex: 0 0 auto; background: #fff; border-top: 1px solid #d5d5d5;
+    padding: 6px 10px 8px 10px; font-size: 13px; box-sizing: border-box; color: #1a202c; }
+  #berlin-tl-controls details summary { cursor: pointer; min-height: 28px; }
+  .tl-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  #tl-label { font-weight: 600; font-variant-numeric: tabular-nums; }
+  #tl-slider { display: block; width: 100%; margin: 8px 0 2px 0; }
+  #tl-hist { display: block; width: 100%; height: 56px; cursor: pointer; background: #fafafa; }
+  .tl-axis { display: flex; justify-content: space-between; font-size: 11px; color: #4a5568; }
+  .tl-pin-wrap { transition: opacity .45s ease; }
+  .tl-pin { width: 22px; height: 22px; border: 2px solid #fff; font-size: 11px; box-shadow: 0 0 2px rgba(0,0,0,.65); }
+  .tl-pin.tl-approx { border: 2px dashed #222; }
+  .tl-pin.tl-fresh { box-shadow: 0 0 0 4px rgba(217,83,79,.55), 0 0 2px rgba(0,0,0,.65); }
+  .tl-pin.tl-new, .pin-new { outline: 3px solid #ff1744; outline-offset: 1px; border-radius: 50%; }
+  .awesome-marker.pin-new { outline: none; filter: drop-shadow(0 0 4px #ff1744) drop-shadow(0 0 2px #ff1744); }
+  #berlin-an-view .an-wrap { max-width: 980px; margin: 0 auto; padding: 10px 12px 24px 12px; box-sizing: border-box; }
+  #berlin-an-view h3 { font-size: 15px; margin: 14px 0 4px 0; }
+  #berlin-an-view .an-note { font-size: 12px; color: #4a5568; line-height: 1.4; margin: 4px 0; }
+  #berlin-an-view svg { display: block; width: 100%; }
+  #berlin-an-view svg text { fill: #1a202c; font-family: sans-serif; }
+  #an-boro-box { position: relative; }
+  #an-boro-box .boro-frame { display: flex; align-items: flex-start; }
+  #berlin-an-view .boro-frame svg { width: auto; flex: 0 0 auto; }
+  #an-boro-scroll { flex: 1 1 auto; min-width: 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+  #an-boro .boro-cell { cursor: pointer; }
+  #an-boro .boro-cell:hover, #an-boro .boro-cell.sel { stroke: #d9534f; stroke-width: 2; }
+  #an-tip { position: absolute; z-index: 6; pointer-events: none; background: #1a202c; color: #fff; font: 12px/1.3 sans-serif;
+    padding: 3px 8px; border-radius: 4px; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+  #an-tip[hidden] { display: none; }
+  body.berlin-dark #an-tip { background: #f7fafc; color: #1a202c; }
+  /* ---- Dark theme ---- */
+  body.berlin-dark { background: #121417; color: #e2e8f0; }
+  body.berlin-dark #berlin-chrome, body.berlin-dark #berlin-legend-slot, body.berlin-dark #berlin-type-panel,
+  body.berlin-dark #berlin-tl-controls, body.berlin-dark.berlin-an-on #berlin-an-view {
+    background: #1a1d23 !important; color: #e2e8f0 !important; border-color: #333a45 !important; }
+  body.berlin-dark #berlin-toolbar { background: #161a1f; border-color: #333a45; color: #e2e8f0; }
+  body.berlin-dark #berlin-toolbar button, body.berlin-dark #berlin-tl-controls button,
+  body.berlin-dark #berlin-tl-controls select, body.berlin-dark #theme-select, body.berlin-dark #berlin-search,
+  body.berlin-dark #link-box input { background: #232831; color: #e2e8f0; border-color: #4a5568; }
+  body.berlin-dark #berlin-toolbar button.active,
+  body.berlin-dark #berlin-toolbar button[aria-pressed="true"].tb-toggle { background: #2b6cb0; border-color: #63b3ed; color: #fff; }
+  body.berlin-dark #berlin-toolbar .tb-status, body.berlin-dark .btf-note, body.berlin-dark .tl-axis,
+  body.berlin-dark .btf-head, body.berlin-dark .btf-cnt, body.berlin-dark #berlin-an-view .an-note { color: #cbd5e0; }
+  body.berlin-dark .btf-row.off .btf-label, body.berlin-dark .btf-row.off .btf-cnt { color: #a0aec0; }
+  body.berlin-dark #berlin-an-view svg text { fill: #e2e8f0; }
+  body.berlin-dark .tb-sep { background: #4a5568; }
+  body.berlin-dark #tl-hist { background: #12151a; }
+  body.berlin-dark .leaflet-container { background: #1b1e22; }
+  body.berlin-dark .leaflet-popup-content-wrapper, body.berlin-dark .leaflet-popup-tip { background: #232831; color: #e2e8f0; }
+  body.berlin-dark .berlin-popup b[style], body.berlin-dark .berlin-popup span[style] { color: #ffc2b8 !important; }
+  body.berlin-dark .leaflet-popup-content a, body.berlin-dark #berlin-legend-slot a,
+  body.berlin-dark .leaflet-control-attribution a { color: #90cdf4 !important; }
+  body.berlin-dark a.leaflet-popup-close-button { color: #cbd5e0; }
+  body.berlin-dark .leaflet-control-layers, body.berlin-dark .leaflet-bar a,
+  body.berlin-dark .leaflet-control-attribution, body.berlin-dark .leaflet-tooltip {
+    background-color: #232831 !important; color: #e2e8f0 !important; border-color: #4a5568 !important; }
+  body.berlin-dark .leaflet-tooltip-top:before { border-top-color: #232831; }
+  body.berlin-dark .leaflet-tooltip-bottom:before { border-bottom-color: #232831; }
+  body.berlin-dark .leaflet-tooltip-left:before { border-left-color: #232831; }
+  body.berlin-dark .leaflet-tooltip-right:before { border-right-color: #232831; }
+  body.berlin-dark .leaflet-control-layers-toggle,
+  body.berlin-dark .leaflet-control-fullscreen a { filter: invert(1) hue-rotate(180deg); }
+  body.berlin-dark .leaflet-control-scale-line { background: rgba(35,40,49,.85); color: #e2e8f0; border-color: #cbd5e0; }
+  body.berlin-dark .legend.leaflet-control { background: rgba(26,29,35,.94) !important; border-radius: 4px; }
+  body.berlin-dark .legend.leaflet-control text { fill: #e2e8f0 !important; }
+  @media (max-width: 768px) {
+    #berlin-toolbar, #berlin-tl-controls { font-size: 16px; }
+    #berlin-toolbar button, #berlin-tl-controls button, #berlin-tl-controls select, #theme-select, #berlin-search {
+      font-size: 16px; padding: 4px 8px; }
+    #tl-hist { height: 44px; }
+    .btf-note { font-size: 12px; }
+  }
+  @media (max-width: 600px) {
+    #btn-legend { display: inline-block; }
+    /* Phase 2: one row that scrolls sideways (see BERLIN app.css: .tb-rows), 44 px targets */
+    .tb-theme-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+    #berlin-search { flex: 1 1 auto !important; width: auto; min-width: 0; }
+    #berlin-toolbar .tb-status { display: none; }
+    .tb-sep { display: none; }
+  }
+/* ===== Phase 2 (21.11f) ===== */
+#berlin-boot { position: fixed; left: 50%; top: 40%; transform: translateX(-50%); z-index: 3000; background: #fff; color: #222;
+  border: 1px solid #ccd; border-radius: 6px; padding: 10px 16px; font: 15px system-ui, sans-serif; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+#berlin-boot[hidden] { display: none; }
+.berlin-boot-error { background: #b00020; color: #fff; padding: 10px 14px; font: 15px system-ui, sans-serif; }
+.berlin-noscript { padding: 12px; font: 16px system-ui, sans-serif; }
+.berlin-src-nolink { font-weight: 600; }
+
+/* Full-screen button: the 26x52 sprite holds the "enter" and "exit" icons; scale it to the button so only one shows */
+.leaflet-control-zoom-fullscreen.fullscreen-icon,
+.leaflet-touch .leaflet-control-zoom-fullscreen.fullscreen-icon {
+  background-image: url("BERLIN%20vendor-fullscreen-icon.svg") !important;
+  background-size: 100% 200% !important; background-position: 0 0 !important; background-repeat: no-repeat !important; }
+.leaflet-control-zoom-fullscreen.fullscreen-icon.leaflet-fullscreen-on,
+.leaflet-touch .leaflet-control-zoom-fullscreen.fullscreen-icon.leaflet-fullscreen-on { background-position: 0 100% !important; }
+body.berlin-dark .leaflet-control-zoom-fullscreen.fullscreen-icon { filter: invert(1) hue-rotate(180deg); }
+
+/* Stacked pins: count badge on the top pin; tap spreads them */
+.berlin-stack-badge { position: absolute; top: -7px; right: -9px; min-width: 20px; height: 20px; padding: 0 4px; box-sizing: border-box;
+  border-radius: 10px; background: #111827; color: #fff; border: 2px solid #fff; font: 700 11px/16px system-ui, sans-serif;
+  text-align: center; pointer-events: none; z-index: 2; }
+.awesome-marker.berlin-spread { filter: drop-shadow(0 0 2px rgba(0,0,0,.55)); }
+body.berlin-dark .berlin-stack-badge { background: #f8fafc; color: #111827; border-color: #111827; }
+
+/* Colour legend (replaces the branca/d3 colour bar) */
+.berlin-colorbar { background: rgba(255,255,255,.94); color: #1f2937; padding: 6px 8px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,.25);
+  font: 12px/1.3 system-ui, sans-serif; max-width: min(300px, calc(100vw - 90px)); }
+.berlin-colorbar[hidden] { display: none; }
+.berlin-colorbar .cb-row + .cb-row { margin-top: 6px; }
+.berlin-colorbar .cb-cap { font-weight: 600; margin-bottom: 3px; }
+.berlin-colorbar .cb-bar { height: 10px; border-radius: 2px; border: 1px solid rgba(0,0,0,.25); }
+.berlin-colorbar .cb-ticks { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+body.berlin-dark .berlin-colorbar { background: rgba(22,26,31,.94); color: #e2e8f0; }
+
+/* Layer list: visible backdrop over the map; tapping it closes the list */
+.berlin-layers-backdrop { position: absolute; inset: 0; z-index: 999; background: rgba(15,23,42,.28); cursor: pointer; }
+.berlin-layers-backdrop[hidden] { display: none; }
+@media (max-width: 600px) {
+  .leaflet-control-layers-expanded .leaflet-control-layers-list { max-height: 56vh !important; overflow-y: auto !important; }
+  .leaflet-control-layers-expanded { max-height: 62vh; }
+}
+
+/* While a popup is open: no hover labels; the colour scale steps aside if it would cover the popup */
+.berlin-popup-open .leaflet-tooltip-pane { display: none; }
+.berlin-cb-hidden .berlin-colorbar { visibility: hidden; }
+/* Long popups wrap and scroll inside */
+.leaflet-popup-content { overflow-wrap: anywhere; }
+
+/* Mobile toolbar: one row, 44 px touch targets, the Legend button is the only legend toggle */
+.tb-rows { display: block; }
+@media (max-width: 600px) {
+  #berlin-toolbar .tb-rows { position: relative; display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; padding: 6px; overflow-x: auto; overflow-y: hidden;
+    -webkit-overflow-scrolling: touch; scrollbar-width: thin; overscroll-behavior-x: contain; }
+  #berlin-toolbar .tb-row { display: contents; }
+  #berlin-toolbar .tb-rows button, #berlin-toolbar .tb-rows select, #berlin-toolbar .tb-rows input {
+    flex: 0 0 auto; min-height: 44px !important; min-width: 44px; font-size: 15px !important; padding: 4px 10px !important; white-space: nowrap; }
+  #berlin-toolbar .tb-rows .tb-theme { flex: 0 0 auto; display: inline-flex; }
+  #berlin-search { flex: 0 0 168px !important; width: 168px !important; }
+  #berlin-legend-slot summary { display: none !important; }
+  .tb-long { display: none; }
+}
+
+/* Focus visibility for keyboard users */
+.awesome-marker:focus-visible, .leaflet-marker-icon:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+
+/* ===== Kiosk / TV mode (?kiosk=1): larger type, bigger targets, no hover-only UI ===== */
+body.berlin-kiosk { font-size: 20px; }
+body.berlin-kiosk #berlin-toolbar button, body.berlin-kiosk #berlin-toolbar select, body.berlin-kiosk #berlin-toolbar input,
+body.berlin-kiosk #berlin-tl-controls button, body.berlin-kiosk #berlin-tl-controls select {
+  font-size: 22px !important; min-height: 56px !important; padding: 6px 16px !important; }
+body.berlin-kiosk .berlin-title summary, body.berlin-kiosk #berlin-legend-slot { font-size: 20px !important; }
+body.berlin-kiosk .leaflet-popup-content { font-size: 20px; line-height: 1.4; }
+body.berlin-kiosk .leaflet-popup-content-wrapper { max-width: 640px; }
+body.berlin-kiosk .leaflet-control-layers-list, body.berlin-kiosk .leaflet-control-layers label { font-size: 20px; }
+body.berlin-kiosk .leaflet-bar a, body.berlin-kiosk .leaflet-touch .leaflet-bar a { width: 56px !important; height: 56px !important; line-height: 56px !important; font-size: 30px !important; }
+body.berlin-kiosk .berlin-colorbar { font-size: 18px; max-width: 420px; }
+body.berlin-kiosk .berlin-colorbar .cb-bar { height: 16px; }
+body.berlin-kiosk .leaflet-control-attribution, body.berlin-kiosk .leaflet-control-scale { font-size: 15px; }
+body.berlin-kiosk .leaflet-tooltip { display: none !important; }
+body.berlin-kiosk .an-wrap, body.berlin-kiosk .an-note, body.berlin-kiosk #berlin-an-view h3 { font-size: 20px; }
+body.berlin-kiosk .berlin-stack-badge { min-width: 26px; height: 26px; font-size: 15px; line-height: 22px; border-radius: 13px; }
+body.berlin-kiosk #tb-status, body.berlin-kiosk .tb-status { font-size: 18px !important; }
+body.berlin-kiosk #berlin-legend-slot .panel-body { font-size: 18px !important; }
+body.berlin-kiosk #tl-label, body.berlin-kiosk .tl-axis { font-size: 20px !important; }
