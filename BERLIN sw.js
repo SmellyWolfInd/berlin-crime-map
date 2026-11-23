@@ -2,7 +2,7 @@
    Same-origin GET requests: cache first, network fallback; page navigations: network first, cached copy offline.
    Cross-origin requests (map tiles) are not intercepted. No push, no background sync, no notifications. */
 "use strict";
-var CACHE = "berlin-map-36041e070f72-1e188f4c";
+var CACHE = "berlin-map-18bfda3abce4-ce196fab";
 var PRECACHE = [
  "BERLIN%20vendor-leaflet.js?v=db49d009c8",
  "BERLIN%20vendor-awesome-markers.js?v=8b0382d98e",
@@ -17,10 +17,10 @@ var PRECACHE = [
  "BERLIN%20vendor-fullscreen.css?v=8c5a942008",
  "BERLIN%20vendor-minimap.css?v=17f3ff10a5",
  "BERLIN%20app.css?v=ae8307efc9",
- "BERLIN%20boot.js?v=86fc92bf52",
- "BERLIN%20app.js?v=1e188f4c442f",
- "BERLIN%20data.json?v=36041e070f72",
- "BERLIN%20data.js?v=36041e070f72",
+ "BERLIN%20boot.js?v=44bbebff00",
+ "BERLIN%20app.js?v=ce196fab5ff5",
+ "BERLIN%20data.json?v=18bfda3abce4",
+ "BERLIN%20data.js?v=18bfda3abce4",
  "BERLIN%20vendor-fa-solid-900.woff2",
  "BERLIN%20vendor-leaflet-layers.png",
  "BERLIN%20vendor-leaflet-layers-2x.png",

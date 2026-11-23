@@ -1940,7 +1940,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Neighborhood: Offense rate per 100k residents 2025" : feature_group_b704b6bddfd1c167b352745a9191cecd,
                     "Central corridor (Tiergarten / Mitte) ~2.5 km + landmark areas (privacy-safe)" : feature_group_0b575151779c2cdce3df74479b422537,
                     "Bicycle theft (open data) \u2014 Planungsraum (~12 months)" : feature_group_0928a8356353bdf28b43a5c90e9dc90d,
-                    "Berlin Fire Department incidents (posts to 15 Nov 2026, fetched 20 Nov 2026)" : feature_group_28d6858027d6bb9456e5e9eb66c7aea6,
+                    "Berlin Fire Department incidents (posts to 22 Nov 2026, fetched 23 Nov 2026)" : feature_group_28d6858027d6bb9456e5e9eb66c7aea6,
                     "Crime-burdened areas (kbO)" : feature_group_b7a6bd56c8b05ff82474dffcdde73183,
                     "Study radius (Victory Column \u2192 BER)" : feature_group_79aa05b2811b5da03b9db231bdd579ba,
                     "Landmarks (Victory Column / BER / Brandenburger Tor)" : feature_group_601ae1090ee0409ec7709610dea60ea5,
